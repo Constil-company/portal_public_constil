@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+        }
+
+        /* --- HEADER LAYOUT (MATCHING SS) --- */
+        .header-layout {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .blue-banner-left {
+            flex: 1.5;
+            background-color: #3b82f6;
+            border-radius: 30px;
+            padding: 45px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .blue-banner-left h1 {
+            font-size: 44px;
+            font-weight: 950;
+            letter-spacing: -0.04em;
+            margin-bottom: 10px;
+            line-height: 1;
+        }
+
+        .blue-banner-left p {
+            font-size: 11px;
+            font-weight: 700;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .meta-cards-right {
+            flex: 0.8;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .white-inner-card {
+            background-color: #fff;
+            border: 1px solid #f8fafc;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .inner-card-lbl {
+            font-size: 8px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .inner-card-val {
+            font-size: 15px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        /* --- BILLING CONTAINER (MATCHING SS) --- */
+        .billing-container-gray {
+            background-color: #f8fafc;
+            border-radius: 25px;
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+
+        .bill-group-box h6 {
+            font-size: 9px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .bill-group-box strong {
+            display: block;
+            font-size: 15px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .bill-group-box p {
+            font-size: 11px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+
+
+    
+
+    
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Triple Header Section (Matching SS) -->
+        <header class="header-layout">
+            <div class="blue-banner-left">
+                <h1>{{logo}}</h1>
+                <p>{{companyName}} / 12345 6789 US0001</p>
+            </div>
+            <div class="meta-cards-right">
+                <div class="white-inner-card">
+                    <span class="inner-card-lbl">INVOICE NUMBER:</span>
+                    <span class="inner-card-val">#{{estimateNumber}}</span>
+                </div>
+                <div class="white-inner-card">
+                    <span class="inner-card-lbl">ISSUED:</span>
+                    <span class="inner-card-val">{{estimateDate}}</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Billing Container (Matching SS) -->
+        <section class="billing-container-gray">
+            <div class="bill-group-box">
+                <h6>BILL FROM:</h6>
+                <strong>{{companyName}}</strong>
+                <p>{{fromAddress}}</p>
+            </div>
+            <div class="bill-group-box">
+                <h6>BILL TO:</h6>
+                <strong>{{shipTo}}</strong>
+                <p>{{billToAddress}}</p>
+            </div>
+        </section>
+
+        <!-- Items Area -->
+        <div class="items-area">
+            <div>
+                {{itemsTable}}
+            </div>
+        </div>
+
+        <!-- Totals area -->
+        <section class="final-totals-area">
+            <div class="summ-line-text">
+                <span>SUBTOTAL:</span>
+                <span>${{subtotal}}</span>
+            </div>
+            <div class="summ-line-text">
+                <span>TAX:</span>
+                <span>+${{totalTax}}</span>
+            </div>
+            <div class="summ-line-text" style="font-size: 16px; margin-top: 15px;">
+                <span style="color: #cbd5e1;">TOTAL:</span>
+                <span style="color: #3b82f6;">${{totalAmount}}</span>
+            </div>
+        </section>
+
+        <!-- Terms -->
+        <footer class="terms-wrap-final">
+            <h6>Terms & Conditions:</h6>
+            <p>{{terms}}</p>
+        </footer>
+    </div>
+</body>
+
+</html>

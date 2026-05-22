@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; }
+        .bg-custom-blue { background-color: #2983FF; }
+    </style>
+</head>
+
+<body class="p-4 md:p-12">
+
+<div class="max-w-4xl mx-auto bg-white rounded-[3rem] shadow-2xl p-8 md:p-16 border border-gray-50">
+
+    <!-- 🔥 HEADER -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        
+        <!-- LEFT (LOGO) -->
+        <div class="md:col-span-2 bg-custom-blue rounded-[2.5rem] p-10 flex flex-col justify-center h-56">
+            <div>
+                {{logo}}
+                <p class="text-white/80 text-sm mt-3">{{companyName}}</p>
+            </div>
+        </div>
+
+        <!-- RIGHT (META) -->
+        <div class="flex flex-col gap-4">
+            <div class="bg-slate-50 rounded-3xl p-6">
+                <p class="text-xs text-slate-400 uppercase">Estimate #</p>
+                <p class="text-xl font-bold">{{estimateNumber}}</p>
+            </div>
+            <div class="bg-slate-50 rounded-3xl p-6">
+                <p class="text-xs text-slate-400 uppercase">Issued</p>
+                <p class="text-xl font-bold">{{estimateDate}}</p>
+                <p class="text-xs text-slate-400 mt-2">Due: {{expirationDate}}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 BILLING -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 bg-slate-50 border border-gray-100">
+        
+        <div class="p-10">
+            <p class="text-xs text-slate-400 uppercase mb-4">Bill From:</p>
+            <p class="font-semibold">{{companyName}}</p>
+            <p class="text-slate-500">{{from}}</p>
+            <p class="text-slate-400 text-sm">{{fromAddress}}</p>
+        </div>
+
+        <div class="p-10">
+            <p class="text-xs text-slate-400 uppercase mb-4">Bill To:</p>
+            <p class="font-semibold">{{shipTo}}</p>
+            <p class="text-slate-500">{{billTo}}</p>
+            <p class="text-slate-400 text-sm">{{billToAddress}}</p>
+        </div>
+    </div>
+
+    <!-- 🔥 ITEMS HEADER -->
+  <div class="mb-10 overflow-x-auto">
+        <div class="min-w-[620px]">
+          <!-- Header -->
+          <div class="grid grid-cols-12 px-2 py-4 text-[11px] font-bold text-custom-gray">
+            <div class="col-span-4">ITEM</div>
+            <div class="col-span-1 text-center">QTY</div>
+            <div class="col-span-2 text-center">UNIT PRICE</div>
+            <div class="col-span-1 text-center">DISCOUNT</div>
+            <div class="col-span-1 text-center">TAX</div>
+            <div class="col-span-3 text-right">TOTAL</div>
+          </div>
+
+          <!-- IMPORTANT: SAME KEY -->
+          <div class="space-y-2">{{itemsTable}}</div>
+        </div>
+      </div>
+
+    <!-- 🔥 TOTALS -->
+    <div class="bg-white p-6 px-12">
+        <div class="text-right space-y-2">
+            <p class="text-xs text-slate-400">SUBTOTAL: <span class="text-slate-800">${{subtotal}}</span></p>
+            <p class="text-xs text-slate-400">TOTAL DISCOUNT: <span class="text-slate-800">${{totalDiscount}}</span></p>
+            <p class="text-xs text-slate-400">TOTAL TAX: <span class="text-slate-800">${{totalTax}}</span></p>
+            <p class="text-xs font-bold text-slate-400">TOTAL: <span class="text-slate-800">${{amount}}</span></p>
+        </div>
+    </div>
+
+    <!-- 🔥 TERMS (STATIC) -->
+    <div class="p-8 mt-8">
+        <p class="font-bold text-sm mb-2">Terms & Conditions:</p>
+        <p class="text-xs text-slate-400">
+            Fees and payment terms are set in the agreement. Initial deposit required before work begins.
+        </p>
+    </div>
+
+    <!-- 🔥 SIGNATURE -->
+  
+
+</div>
+
+</body>
+</html>

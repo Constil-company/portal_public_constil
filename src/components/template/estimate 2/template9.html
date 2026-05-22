@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+        }
+
+        /* --- CORPORATE HEADER --- */
+        .corporate-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 60px;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 30px;
+        }
+
+        .brand-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .brand-section h2 {
+            font-size: 20px;
+            font-weight: 950;
+            color: #0f172a;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .brand-section p {
+            font-size: 13px;
+            color: #94a3b8;
+            font-weight: 500;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+
+        .title-section {
+            text-align: right;
+        }
+
+        .title-section h1 {
+            font-size: 42px;
+            font-weight: 950;
+            color: #1a56db;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+
+        .meta-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .meta-list li {
+            font-size: 13px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .meta-list li strong {
+            color: #0f172a;
+            margin-left: 10px;
+        }
+
+        /* --- HERO INFO CARD --- */
+        .hero-info-card {
+            background-color: #f8fafc;
+            border-radius: 25px;
+            padding: 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 60px;
+            border-left: 10px solid #1a56db;
+        }
+
+        .client-side h3 {
+            font-size: 11px;
+            font-weight: 900;
+            color: #1a56db;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 15px;
+        }
+
+        .client-side .name {
+            font-size: 32px;
+            font-weight: 950;
+            color: #0f172a;
+            line-height: 1;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: -0.04em;
+        }
+
+        .client-side .address {
+            font-size: 14px;
+            color: #64748b;
+            line-height: 1.7;
+            font-weight: 600;
+            max-width: 350px;
+            text-transform: uppercase;
+        }
+
+        .total-side {
+            text-align: right;
+        }
+
+        .total-side .label {
+            font-size: 12px;
+            font-weight: 900;
+            color: #1a56db;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .total-side .amount {
+            font-size: 48px;
+            font-weight: 950;
+            color: #0f172a;
+            letter-spacing: -0.05em;
+        }
+        
+
+
+    
+
+    
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- CORPORATE HEADER -->
+        <header class="corporate-header">
+            <div class="brand-section">
+                <div>{{logo}}</div>
+                <h2>{{companyName}}</h2>
+                <p>{{fromAddress}}</p>
+            </div>
+            <div class="title-section">
+                <h1>ESTIMATE</h1>
+                <ul class="meta-list">
+                    <li>ESTIMATE ID: <strong>#{{estimateNumber}}</strong></li>
+                    <li>DATE: <strong>{{estimateDate}}</strong></li>
+                </ul>
+            </div>
+        </header>
+
+        <!-- HERO INFO CARD -->
+        <section class="hero-info-card">
+            <div class="client-side">
+                <h3>CLIENT INFORMATION:</h3>
+                <div class="name">{{shipTo}}</div>
+                <div class="address">{{billToAddress}}</div>
+            </div>
+            <div class="total-side">
+                <span class="label">ESTIMATE VALUATION</span>
+                <div class="amount">${{amount}}</div>
+            </div>
+        </section>
+
+        <!-- ITEMS AREA -->
+        <section class="items-area">
+            <div>
+                {{itemsTable}}
+            </div>
+        </section>
+
+        <!-- TOTALS AREA -->
+        <section class="summary-flex-final">
+            <div class="summary-card-inner">
+                <div class="summary-item-flex">
+                    <span>Base Subtotal</span>
+                    <span>${{subtotal}}</span>
+                </div>
+                <div class="summary-item-flex">
+                    <span>Applicable Tax</span>
+                    <span>+${{totalTax}}</span>
+                </div>
+                <!-- GRAND TOTAL FINAL BOX -->
+                <div class="grand-total-final-box">
+                    <span class="label">TOTAL DUE</span>
+                    <span class="amount">${{totalAmount}}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="professional-footer">
+            <div class="terms-part">
+                <h6>NOTES & LEGAL TERMS:</h6>
+                <p>{{terms}}</p>
+            </div>
+            <div class="signature-part">
+                <div class="mb-4">{{signature}}</div>
+                <div class="sig-line-narrow text-right">
+                    <span class="label uppercase font-black text-[9px] text-slate-300 tracking-[0.2em]">Authorized Signature</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

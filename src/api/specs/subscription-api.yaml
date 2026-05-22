@@ -1,0 +1,475 @@
+openapi: 3.0.3
+info:
+  title: Subscription API
+  version: 1.1.0
+
+paths:
+  /api/v1/subscriptions:
+    get:
+      summary: Get available subscription plans
+      operationId: getSubscriptionPlans
+      tags:
+        - Subscription
+      responses:
+        "200":
+          description: A list of available subscription plans
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubscriptionPlansResponse"
+              examples:
+                ThreePlansExample:
+                  value:
+                    plans:
+                      - id: plan_basic
+                        name: Basic Plan
+                        description: Access to core features
+                        recommended: false
+                        features:
+                          - 30h Fast generations
+                          - Unlimited Relaxed generations
+                          - General commercial terms
+                          - Access to member gallery
+                          - Optional credit top ups
+                        billingOptions:
+                          - interval: monthly
+                            price: 9.99
+                            currency: USD
+                            priceId: price_basic_monthly
+                          - interval: annually
+                            price: 95.88 # 9.99 * 12 * 0.8 (20% discount)
+                            currency: USD
+                            priceId: price_basic_annually
+                      - id: plan_professional
+                        name: Professional Plan
+                        description: Unlock the full potential
+                        recommended: true
+                        features:
+                          - 15h Fast generations
+                          - Unlimited Relaxed generations
+                          - General commercial terms
+                          - Access to member gallery
+                          - Optional credit top ups
+                        billingOptions:
+                          - interval: monthly
+                            price: 19.00
+                            currency: USD
+                            priceId: price_professional_monthly
+                          - interval: annually
+                            price: 182.40 # 19 * 12 * 0.8 (20% discount)
+                            currency: USD
+                            priceId: price_professional_annually
+                      - id: plan_enterprise
+                        name: Enterprise Plan
+                        description: For larger teams
+                        recommended: false
+                        features:
+                          - 30h Fast generations
+                          - Unlimited Relaxed generations
+                          - General commercial terms
+                          - Access to member gallery
+                          - Optional credit top ups
+                          - 3 concurrent fast jobs
+                        billingOptions:
+                          - interval: monthly
+                            price: 30.00
+                            currency: USD
+                            priceId: price_enterprise_monthly
+                          - interval: annually
+                            price: 288.00 # 30 * 12 * 0.8 (20% discount)
+                            currency: USD
+                            priceId: price_enterprise_annually
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    post:
+      summary: Create a Stripe Checkout Session
+      operationId: createCheckoutSession
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutRequest"
+      responses:
+        "200":
+          description: Checkout session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreateCheckoutSessionResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/subscriptions/payment-status:
+    post:
+      summary: Check Stripe Checkout Session status
+      operationId: checkPaymentStatus
+      tags:
+        - Subscription
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CheckPaymentStatusRequest"
+      responses:
+        "200":
+          description: Payment status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckPaymentStatusResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/subscriptions/history:
+    get:
+      summary: Get paginated subscription history
+      operationId: getSubscriptionHistory
+      tags:
+        - Subscription
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            example: sub_aslaksdld
+          description: The starting index of subsciption, you should pass last subscription id from the previous page.
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+          description: The number of invoices to return.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              [
+                active,
+                canceled,
+                incomplete,
+                incomplete_expired,
+                past_due,
+                trialing,
+                unpaid,
+              ]
+            example: ACTIVE
+          description: Filter by subscription status.
+      responses:
+        "200":
+          description: Paginated subscription history retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllSubscriptionHistoryPaginatedResponse"
+
+  /api/v1/subscriptions/current-plan:
+    get:
+      summary: Get current subscription plan for a client
+      operationId: getCurrentPlan
+      tags:
+        - Subscription
+      responses:
+        "200":
+          description: Subscription plan details retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserSubscriptionPlanResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Client not found or no active subscription
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/subscriptions/cancel:
+    post:
+      summary: Cancel a subscription for a client
+      operationId: cancelSubscription
+      tags:
+        - Subscription
+      responses:
+        "200":
+          description: Subscription canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CancelSubscriptionResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400
+
+    SubscriptionPlansResponse:
+      type: object
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionPlanDto"
+
+    SubscriptionPlanDto:
+      type: object
+      properties:
+        id:
+          type: string
+          example: plan_basic
+        name:
+          type: string
+          example: Basic
+        description:
+          type: string
+          example: Access to core features
+        recommended:
+          type: boolean
+          example: false
+        features:
+          type: array
+          items:
+            type: string
+          example:
+            - Unlimited Projects
+            - 10 Team Members
+        billingOptions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BillingOptionDto"
+
+    BillingOptionDto:
+      type: object
+      properties:
+        interval:
+          type: string
+          enum: [monthly, annually]
+          example: monthly
+        price:
+          type: number
+          format: float
+          example: 9.99
+        currency:
+          type: string
+          example: USD
+        priceId:
+          type: string
+          example: price_1NxxxABC123xyz # Stripe Price ID
+
+    CreateCheckoutSessionResponse:
+      type: object
+      properties:
+        clientSecret:
+          type: string
+          example: cs_test_a1B2c3D4e5F6g7H8
+
+    CheckPaymentStatusRequest:
+      type: object
+      required:
+        - sessionId
+      properties:
+        sessionId:
+          type: string
+          example: cs_test_a1B2c3D4e5F6g7H8
+
+    CreateCheckoutRequest:
+      type: object
+      required:
+        - priceId
+      properties:
+        priceId:
+          type: string
+          example: price_1NxxxABC123xyz
+
+    CheckPaymentStatusResponse:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          example: cs_test_a1B2c3D4e5F6g7H8
+        status:
+          type: string
+          enum: [complete, open, expired]
+          example: complete
+        subscriptionId:
+          type: string
+          example: sub_1234567890abcdef
+        customerEmail:
+          type: string
+          example: user@example.com
+
+    GetAllSubscriptionHistoryPaginatedResponse:
+      type: object
+      properties:
+        hasMore:
+          type: boolean
+          example: true
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionHistoryResponse"
+
+    SubscriptionHistoryResponse:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          example: sub_1Nk5sZD7K59x9
+        invoiceId:
+          type: string
+          example: inv_1Nk5sZD7K59x9
+        planName:
+          type: string
+          example: Premium Plan
+        price:
+          type: number
+          format: float
+          example: 19.99
+        currency:
+          type: string
+          example: USD
+        billingDate:
+          type: string
+          format: date-time
+          example: 2024-04-10T12:30:00Z
+        status:
+          type: string
+          enum:
+            [
+              ACTIVE,
+              CANCELED,
+              INCOMPLETE,
+              INCOMPLETE_EXPIRED,
+              PAST_DUE,
+              TRIALING,
+              UNPAID,
+            ]
+          example: ACTIVE
+        downloadUrl:
+          type: string
+          example: https://stripe.com/invoices/inv_1Nk5sZD7K59x9/download
+
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+
+    UserSubscriptionPlanResponse:
+      type: object
+      properties:
+        planName:
+          type: string
+          example: Basic Plan
+        billingPeriod:
+          type: string
+          enum: [monthly, annually]
+          example: monthly
+        price:
+          type: number
+          format: float
+          example: 9.99
+
+    CancelSubscriptionResponse:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          example: sub_1NKxxx...
+        canceledAt:
+          type: string
+          format: date-time
+          example: 2025-04-13T18:32:00Z
+        status:
+          type: string
+          enum: [canceled, error]
+          example: canceled

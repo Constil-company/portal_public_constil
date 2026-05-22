@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+        }
+
+        /* --- DUAL HEADER CARDS (MATCHING SS) --- */
+        .header-cards {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .blue-logo-card {
+            background-color: #3b82f6;
+            border-radius: 25px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.1);
+        }
+
+        .blue-logo-card div {
+            font-size: 32px;
+            font-weight: 950;
+            letter-spacing: -0.02em;
+        }
+
+        .date-info-card {
+            background-color: #fff;
+            border: 1px solid #f8fafc;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .date-item .label {
+            font-size: 9px;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .date-item .value {
+            font-size: 16px;
+            font-weight: 900;
+            color: #0f172a;
+        }
+
+        /* --- ADDRESS CARDS (MATCHING SS) --- */
+        .address-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 60px;
+        }
+
+        .address-label {
+            font-size: 10px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: block;
+            padding-left: 10px;
+        }
+
+        .gray-address-card {
+            background-color: #f8fafc;
+            border-radius: 20px;
+            padding: 30px;
+            height: 100%;
+        }
+
+        .gray-address-card strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 15px;
+        }
+
+        .gray-address-card p {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        
+
+
+    
+
+    
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Dual Header Cards (Matching SS) -->
+        <header class="header-cards">
+            <div class="blue-logo-card">
+                <div>{{logo}}</div>
+            </div>
+            <div class="date-info-card">
+                <div class="date-item">
+                    <span class="label">ISSUED:</span>
+                    <span class="value">{{estimateDate}}</span>
+                </div>
+                <div class="date-item">
+                    <span class="label">DUE BY:</span>
+                    <span class="value">Sep 15, 2026</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Address Cards (Matching SS) -->
+        <section class="address-section">
+            <div>
+                <span class="address-label">BILL FROM:</span>
+                <div class="gray-address-card">
+                    <strong>{{companyName}}</strong>
+                    <p>{{fromAddress}}</p>
+                </div>
+            </div>
+            <div>
+                <span class="address-label">BILL TO:</span>
+                <div class="gray-address-card">
+                    <strong>Client: {{shipTo}}</strong>
+                    <p>{{billToAddress}}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Items Table area -->
+        <div class="items-area">
+            <div>
+                {{itemsTable}}
+            </div>
+        </div>
+
+        <!-- Minimalist Totals -->
+        <section class="footer-totals">
+            <div class="total-line">
+                <span>SUBTOTAL:</span>
+                <span>${{subtotal}}</span>
+            </div>
+            <div class="total-line">
+                <span>TOTAL DISCOUNT:</span>
+                <span>${{totalDiscount}}</span>
+            </div>
+            <div class="total-line">
+                <span>TOTAL TAX:</span>
+                <span>${{totalTax}}</span>
+            </div>
+            <div class="total-line grand-total-bold">
+                <span>TOTAL:</span>
+                <span>${{totalAmount}}</span>
+            </div>
+        </section>
+
+        <!-- Footer terms -->
+        <footer class="terms-box">
+            <h6>Terms & Conditions:</h6>
+            <p>{{terms}}</p>
+        </footer>
+
+        <!-- Bottom URL -->
+        <div class="mt-8 text-[10px] text-slate-300 font-bold tracking-widest text-right">
+            WWW.CONSTIL.COM
+        </div>
+    </div>
+</body>
+
+</html>

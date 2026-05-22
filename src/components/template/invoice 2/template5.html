@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Outfit', sans-serif; background: #fff; margin: 0; padding: 0; }
+        .sidebar { background: #f8fafc; width: 320px; min-height: 100vh; padding: 48px; border-right: 1px solid #f1f5f9; display: flex; flex-direction: column; }
+        .main-content { flex: 1; padding: 64px 80px; }
+        .label-pill { background: #dbeafe; color: #3b82f6; padding: 4px 16px; border-radius: 9999px; font-size: 10px; font-weight: 800; display: inline-block; }
+        .item-card { background: #f8fafc; border-radius: 1.5rem; padding: 32px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: start; border: 1px solid #f1f5f9; }
+        tr, .grid { page-break-inside: avoid !important; }
+        .slanted-text { transform: skewX(-15deg); display: inline-block; }
+    
+
+    </style>
+</head>
+<body class="text-slate-900">
+    <div id="invoice" class="max-w-[1200px] mx-auto min-h-screen flex">
+        
+        <!-- Left Sidebar -->
+        <aside class="sidebar relative">
+            <div class="mb-12">
+                <span class="label-pill">Nº: {{invoiceNumber}}</span>
+            </div>
+            
+            <h1 class="text-6xl font-black text-slate-800 slanted-text mb-20 tracking-tighter">INVOICE</h1>
+            
+            <div class="space-y-12">
+                <div>
+                    <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest block w-max mb-4">Bill from:</span>
+                    <h2 class="text-xl font-black text-slate-900">{{companyName}}</h2>
+                    <p class="text-xs font-bold text-slate-500 mt-1">(684) 879 - 0102</p>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">{{fromAddress}}</p>
+                </div>
+                
+                <div>
+                    <span class="bg-blue-100 text-blue-600 px-3 py-1 rounded text-[9px] font-black uppercase tracking-widest block w-max mb-4">Bill to:</span>
+                    <h3 class="text-xl font-black text-slate-900">{{shipTo}}</h3>
+                    <p class="text-xs font-bold text-slate-500 mt-1">(612) 856 - 0989</p>
+                    <p class="text-xs text-slate-400 mt-2 leading-relaxed">{{billToAddress}}</p>
+                </div>
+
+                <div class="pt-8 border-t border-slate-200">
+                    <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-4">Invoice details:</h4>
+                    <div class="space-y-3 text-[11px]">
+                        <p class="text-slate-400 font-bold uppercase tracking-widest">Number: <span class="text-slate-900">Nº: {{invoiceNumber}}</span></p>
+                        <p class="text-slate-400 font-bold uppercase tracking-widest">Issued: <span class="text-slate-900">{{invoiceDate}}</span></p>
+                        <p class="text-slate-400 font-bold uppercase tracking-widest">Due date: <span class="text-slate-900">{{expirationDate}}</span></p>
+                    </div>
+                </div>
+
+                <div class="pt-8 border-t border-slate-200">
+                    <h4 class="text-[11px] font-black text-slate-900 uppercase tracking-widest mb-4">Terms & Conditions:</h4>
+                    <p class="text-[10px] text-slate-400 leading-relaxed italic">{{terms}}</p>
+                </div>
+            </div>
+
+            <!-- Totals & Logo in Sidebar Bottom -->
+            <div class="mt-auto pt-20">
+                <div class="flex items-end gap-2 opacity-40">
+                    <div class="scale-50 origin-left">{{logo}}</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <h2 class="text-3xl font-black text-slate-900 mb-12 tracking-tight">Items/Services</h2>
+            
+            <div class="space-y-6">
+                <!-- Each row in the items list will be rendered as an item-card -->
+                {{itemsTable}}
+            </div>
+
+            <!-- Bottom Totals -->
+            <div class="mt-16 flex flex-col items-end space-y-3">
+                <div class="flex justify-between w-64 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <span>Subtotal:</span>
+                    <span class="text-slate-900 font-black">${{subtotal}}</span>
+                </div>
+                <div class="flex justify-between w-64 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                    <span>Total Discount:</span>
+                    <span class="text-slate-900 font-black">${{totalDiscount}}</span>
+                </div>
+                <div class="flex justify-between w-64 text-[10px] font-black text-slate-300 uppercase tracking-widest border-b border-slate-100 pb-3">
+                    <span>Total Tax:</span>
+                    <span class="text-slate-900 font-black">${{totalTax}}</span>
+                </div>
+                <div class="flex justify-between w-64 pt-3 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                    <span>Total:</span>
+                    <span class="text-blue-600 font-black text-base">${{totalAmount}}</span>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

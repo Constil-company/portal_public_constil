@@ -1,0 +1,22 @@
+[
+  {
+    "product": "5a384de3-20fb-46b9-8bb7-2bd16ebcdd58",
+    "client": "fd5ae41d-f802-4ffc-8859-ae4168863829",
+    "quantity": 1,
+    "price": 610,
+    "tax_key": true,
+    "discount_key": true,
+    "tax": ["a98f9840-b16c-48ce-8e46-1f2ec8343f07", "3678e04a-c758-4ac2-ab3b-40f661fa9955"],
+    "discount": ["fc74f5cd-2552-4c55-b96a-977a143cf9dd", "a1aad74a-35d6-452a-b495-fe99d45098ea"]
+  },
+  {
+    "product": "574047e5-90ff-4a5d-b5f0-a88d14cef414",
+    "client": "fd5ae41d-f802-4ffc-8859-ae4168863829",
+    "quantity": 1,
+    "price": 306,
+    "tax_key": true,
+    "discount_key": true,
+    "tax": ["a98f9840-b16c-48ce-8e46-1f2ec8343f07"],
+    "discount": ["fc74f5cd-2552-4c55-b96a-977a143cf9dd"]
+  }
+]

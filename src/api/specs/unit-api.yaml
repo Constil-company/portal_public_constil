@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: Unit API
+  description: API to manage measurement units used for product pricing.
+  version: 1.0.0
+
+paths:
+  /api/v1/units:
+    get:
+      operationId: getAllUnits
+      tags:
+        - Units
+      summary: Retrieve a list of measurement units
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: The starting index of the units.
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: The number of units to return.
+          schema:
+            type: integer
+            example: 10
+        - name: filter
+          in: query
+          required: false
+          description: Filter criteria for units.
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A paginated list of units
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllUnitsPaginatedResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createUnit
+      tags:
+        - Units
+      summary: Create a new measurement unit
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUnitRequest'
+      responses:
+        '201':
+          description: Unit successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnitResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    GetAllUnitsPaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnitResponse'
+      example:
+        pagination:
+          totalItems: 100
+          pageSize: 10
+          currentPage: 1
+          totalPages: 10
+        data:
+          - id: "123e4567-e89b-12d3-a456-426614174000"
+            name: "Kilogram"
+            abbreviation: "kg"
+          - id: "123e4567-e89b-12d3-a456-426614174001"
+            name: "Gram"
+            abbreviation: "g"
+    
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+    
+    UnitResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "Kilogram"
+        abbreviation:
+          type: string
+          example: "kg"
+    
+    CreateUnitRequest:
+      type: object
+      required:
+        - name
+        - abbreviation
+      properties:
+        name:
+          type: string
+        abbreviation:
+          type: string
+    
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

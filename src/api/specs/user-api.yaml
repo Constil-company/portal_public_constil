@@ -1,0 +1,675 @@
+openapi: 3.0.3
+info:
+  title: User API
+  description: API for managing authentication and user login/registration between Next.js and Spring Boot.
+  version: 1.3.1
+servers:
+  - description: Prism mock server
+    url: http://localhost:4010
+tags:
+  - name: user
+    description: Operations related to user authentication and registration.
+paths:
+  /api/v1/users/register:
+    post:
+      summary: Register a new user
+      description: Registers a user with data provided from an authentication provider. If the user doesn't exist, creates a new account.
+      operationId: registerUser
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+              example:
+                provider:
+                  authProvider: "google"
+                  authProviderIdToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                user:
+                  businessName: "Alexasoft"
+                  picture: "https://example.com/profile.jpg"
+                  credentials:
+                    email: "john.doe@example.com"
+                    password: "StrongPass123"
+      responses:
+        200:
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAuthenticationResponse"
+                example:
+                  status: "success"
+                  messages: ["User registered successfully"]
+                  data:
+                    user:
+                      id: "12345"
+                      businessName: "Alexasoft"
+                      email: "john.doe@example.com"
+                      picture: "https://example.com/profile.jpg"
+                    tokens:
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      accessTokenExpiresAt: "2025-02-21T12:00:00Z"
+                      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshTokenExpiresAt: "2025-03-21T12:00:00Z"
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        409:
+          $ref: "#/components/responses/ConflictResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+
+  /api/v1/users/login:
+    post:
+      summary: Login with credentials from an authentication provider
+      description: Logs in a user using credentials for a specific provider. Returns access and refresh tokens.
+      operationId: login
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+              example:
+                provider:
+                  authProvider: "email"
+                credentials:
+                  email: "john.doe@example.com"
+                  password: "StrongPass123"
+      responses:
+        200:
+          description: User successfully logged in.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserAuthenticationResponse"
+                example:
+                  status: "success"
+                  messages: ["Login successful"]
+                  data:
+                    user:
+                      id: "12345"
+                      businessName: "Invictus SA"
+                      email: "invictus@example.com"
+                      picture: "https://example.com/profile.jpg"
+                    tokens:
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      accessTokenExpiresAt: "2025-02-21T12:00:00Z"
+                      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshTokenExpiresAt: "2025-03-21T12:00:00Z"
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        401:
+          $ref: "#/components/responses/UnauthorizedResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+
+  /api/v1/users/logo/upload:
+    post:
+      summary: Upload a user logo
+      description: Accepts an image file and responds with a URL to access the uploaded logo.
+      operationId: uploadUserLogo
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The image file to be uploaded.
+      responses:
+        200:
+          description: User successfully uploaded it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserLogoUploadResponse"
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /api/v1/users/email/otp/send:
+    post:
+      summary: Send OTP to email
+      description: Sends a one-time password (OTP) to the user's email address for verification purposes.
+      operationId: sendEmailOtp
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The user's email to which the OTP will be sent.
+              example:
+                email: "john.doe@example.com"
+      responses:
+        200:
+          description: OTP sent successfully to the email.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpSendResponse"
+              example:
+                status: "success"
+                messages: ["OTP has been resent to your email."]
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /api/v1/users/email/otp/verify:
+    post:
+      summary: Verify OTP for email
+      description: Verifies the one-time password (OTP) submitted by the user for email confirmation.
+      operationId: verifyEmailOtp
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - otp
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: The user's email address.
+                otp:
+                  type: string
+                  description: The OTP code sent to the user's email.
+              example:
+                email: "john.doe@example.com"
+                otp: "123456"
+      responses:
+        200:
+          description: OTP verified successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpVerifyResponse"
+              example:
+                messages: ["Email successfully verified"]
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        401:
+          $ref: "#/components/responses/UnauthorizedResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /api/v1/users/email/otp/resend:
+    post:
+      summary: Resend OTP to user's email
+      description: Resends a new OTP to the user's email address for verification.
+      operationId: resendEmailOtp
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendOtpRequest"
+              example:
+                email: "john.doe@example.com"
+      responses:
+        200:
+          description: OTP resent successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OtpResendResponse"
+              example:
+                status: "success"
+                messages: ["OTP has been resent to your email."]
+        400:
+          $ref: "#/components/responses/BadRequestResponse"
+        404:
+          $ref: "#/components/responses/NotFoundResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+  /api/v1/users/me:
+    get:
+      summary: Get current user information
+      description: Returns information about the authenticated user, including their roles and permissions.
+      operationId: getCurrentUser
+      tags:
+        - user
+      responses:
+        200:
+          description: Successfully retrieved current user data.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponseEnriched"
+              example:
+                user:
+                  id: "12345"
+                  businessName: "Invictus SA"
+                  email: "invictus@invictus.com"
+                  picture: "https://example.com/profile.jpg"
+                plan:
+                  name: "trial"
+                  permissions:
+                    - "invoices.creation.execute"
+                    - "estimates.creation.execute"
+        401:
+          $ref: "#/components/responses/UnauthorizedResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+    patch:
+      summary: Update current user information
+      description: Allows the authenticated user to update their profile information, excluding the email.
+      operationId: updateCurrentUser
+      tags:
+        - user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateDetails"
+      responses:
+        200:
+          description: User information updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserResponse"
+        400:
+          description: Invalid request data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        401:
+          $ref: "#/components/responses/UnauthorizedResponse"
+        500:
+          $ref: "#/components/responses/InternalServerErrorResponse"
+components:
+
+  schemas:
+    AuthProvider:
+      type: object
+      required:
+        - authProvider
+      properties:
+        authProvider:
+          type: string
+          enum:
+            - google
+            - microsoft
+            - facebook
+            - email
+          description: The authentication provider for the user.
+        authProviderIdToken:
+          type: string
+          description: The ID token from the authentication provider (e.g., Google or Microsoft).
+
+    RegisterRequest:
+      type: object
+      required:
+        - provider
+        - user
+      properties:
+        provider:
+          $ref: "#/components/schemas/AuthProvider"
+        user:
+          $ref: "#/components/schemas/UserRegistrationDetails"
+
+    LoginRequest:
+      type: object
+      required:
+        - provider
+        - credentials
+      properties:
+        provider:
+          $ref: "#/components/schemas/AuthProvider"
+        credentials:
+          $ref: "#/components/schemas/UserCredentials"
+
+    UserResponseEnriched:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserResponse"
+        plan:
+          type: object
+          properties:
+            name:
+              type: string
+              description: Name of the current plan (e.g., trial, free, pro)
+              example: "trial"
+            permissions:
+              type: array
+              items:
+                type: string
+              description: List of permissions granted by this plan
+              example: ["write:invoices", "read:invoices"]
+
+    UserAuthenticationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status of the call (e.g., success, error).
+        messages:
+          type: array
+          items:
+            type: string
+          description: A list of messages related to the status of the request.
+        data:
+          type: object
+          description: Contains relevant data. This could be user data for registration or tokens for login.
+          properties:
+            user:
+              $ref: "#/components/schemas/UserResponse"
+            tokens:
+              $ref: "#/components/schemas/Tokens"
+
+    UserLogoUploadResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status of the call (e.g., success, error).
+        messages:
+          type: array
+          items:
+            type: string
+          description: A list of messages related to the status of the request.
+        data:
+          type: object
+          description: Contains relevant data. This could be user data for registration or tokens for login.
+          properties:
+            url:
+              type: string
+              format: uri
+              description: The URL to access the uploaded logo.
+              example: "https://example.com/uploads/logo123.png"
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: The status of the call (e.g., error).
+        message:
+          type: string
+          description: A description of the error.
+        code:
+          type: integer
+          description: The HTTP error code (e.g., 400, 500).
+        details:
+          type: string
+          description: Additional error details, if any.
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique ID of the registered user.
+        businessName:
+          type: string
+          description: business data
+        businessAddress:
+          type: string
+          description: business address
+        email:
+          type: string
+          format: email
+          description: The user's email address.
+        picture:
+          type: string
+          format: uri
+          description: URL to the user's profile picture.
+        taxNumber:
+          type: string
+          description: User Tax number
+        phoneNumber:
+          type: string
+          description: The user's phone number in international format.
+          example: "+1-202-555-0173"
+        country:
+          type: string
+          description: A country where business is hosted.
+        city:
+          type: string
+          description: A city where business is hosted.
+        zipCode:
+          type: string
+          description: The postal code or ZIP code of the user's business location.
+          example: "12345-6789"
+        webSite:
+          type: string
+          format: uri
+          description: URL to the user's website.
+        state:
+          type: string
+          description: A country state where business is hosted.
+
+    Tokens:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          description: The JWT access token for authenticating subsequent requests.
+        accessTokenExpiresAt:
+          type: string
+          format: date-time
+          description: The expiration date and time of the access token in ISO 8601 format.
+        refreshToken:
+          type: string
+          description: The refresh token for obtaining new access tokens.
+        refreshTokenExpiresAt:
+          type: string
+          format: date-time
+          description: The expiration date and time of the refresh token in ISO 8601 format.
+
+    UserRegistrationDetails:
+      type: object
+      required:
+        - credentials
+        - businessName
+        - address
+        - country
+        - city
+        - zipCode
+      properties:
+        businessName:
+          type: string
+          maxLength: 150
+          description: User business name
+        address:
+          type: string
+          maxLength: 255
+          description: User address.
+        taxNumber:
+          type: string
+          pattern: "^(?:\\d{3}-\\d{2}-\\d{4}|\\d{2}-\\d{7})$"
+          description: Taxpayer Identification Number (TIN) for companies in the USA, formatted as XX-XXXXXXX.
+          example: "12-3456789"
+        phoneNumber:
+          type: string
+          pattern: "^(?:\\+1\\s?)?(?:\\(?\\d{3}\\)?[\\s.-]?)?\\d{3}[\\s.-]?\\d{4}$"
+          maxLength: 20
+          description: The user's phone number in international format.
+          example: "+1-202-555-0173"
+        country:
+          type: string
+          maxLength: 100
+          description: A country where business is hosted.
+        state:
+          type: string
+          maxLength: 100
+          description: A country state where business is hosted.
+        city:
+          type: string
+          maxLength: 100
+          description: A city where business is hosted.
+        zipCode:
+          type: string
+          pattern: "^[0-9]{5}(-[0-9]{4})?$"
+          maxLength: 10
+          description: The postal code or ZIP code of the user's business location.
+          example: "12345-6789"
+        webSite:
+          type: string
+          format: uri
+          description: URL to the user's website.
+        credentials:
+          $ref: "#/components/schemas/UserCredentials"
+
+    UserCredentials:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The user's email address.
+        password:
+          type: string
+          description: The user's password.
+          minLength: 10
+          maxLength: 20
+          pattern: "^(?=.*\\d)(?=.*[A-Za-z@$!%*?&])[A-Za-z\\d@$!%*?&]{10,20}$"
+          example: "StrongPass123"
+  
+    ResendOtpRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: The user's email address to which the OTP will be resent.
+          example: "john.doe@example.com"
+    
+    OtpResendResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+          description: A list of messages related to the OTP resend operation.
+          example: ["OTP has been resent to your email."]
+
+    OtpSendResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+          description: A list of messages related to the OTP resend operation.
+          example: ["OTP has been resent to your email."]
+
+    OtpVerifyResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string
+          description: A list of messages related to the OTP verification operation.
+          example: ["Email successfully verified"]
+
+
+    UserUpdateDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Jane Doe"
+        phone:
+          type: string
+          example: "+244912345678"
+        country:
+          type: string
+          example: "Angola"
+        companyName:
+          type: string
+          example: "Minha Empresa Lda"
+        companyAddress:
+          type: string
+          example: "Rua Principal, 123"
+        companyTaxNumber:
+          type: string
+          example: "123456789"
+        zipCode:
+          type: string
+          example: "1234-567"
+        site:
+          type: string
+          format: uri
+          example: "https://example.com"
+
+  responses:
+    BadRequestResponse:
+      description: Bad request (e.g., missing fields or invalid data).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ConflictResponse:
+      description: Conflict (e.g., user already exists).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            example:
+              status: "error"
+              message: "User already exists"
+              code: 409
+    UnauthorizedResponse:
+      description: Unauthorized (e.g., invalid credentials).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            status: "error"
+            message: "Invalid email or password"
+            code: 401
+    InternalServerErrorResponse:
+      description: Internal server error (e.g., unexpected error during processing).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            example:
+              status: "error"
+              message: "Unexpected server error"
+              code: 500
+    NotFoundResponse:
+      description: Not found (e.g., user not found).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+            example:
+              status: "error"
+              message: "User not found"
+              code: 404

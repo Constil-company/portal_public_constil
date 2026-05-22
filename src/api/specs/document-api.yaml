@@ -1,0 +1,137 @@
+openapi: 3.0.3
+info:
+  title: Document API
+  version: 1.0.0
+  description: API for managing invoice templates and generating invoice documents
+
+security:
+  - CSRFHeaderAuth: []
+
+paths:
+  /api/v1/document/templates:
+    get:
+      summary: Get all invoice templates
+      operationId: getTemplates
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: integer
+          description: Pagination start index
+        - name: size
+          in: query
+          schema:
+            type: integer
+          description: Number of items to return
+        - name: filter
+          in: query
+          schema:
+            type: string
+          description: Filter condition
+        - name: orderBy
+          in: query
+          schema:
+            type: string
+          description: Field to order by
+        - name: direction
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort direction
+      responses:
+        200:
+          description: Successful response with templates
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllTemplatePaginatedResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+components:
+  securitySchemes:
+    CSRFHeaderAuth:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    GetAllTemplatePaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/TemplateResponse"
+
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+
+    TemplateResponse:
+      type: object
+      properties:
+        templateId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+          format: uri
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

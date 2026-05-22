@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #fff;
+            position: relative;
+        }
+
+        /* --- LOGO SECTION --- */
+        .logo-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 40px;
+            width: 100%;
+        }
+
+        .logo-header div {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #000;
+        }
+
+        /* --- BLUE BANNER CARD (MATCHING SS 2) --- */
+        .blue-banner {
+            background-color: #3b82f6;
+            border-radius: 40px;
+            padding: 60px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #fff;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px -15px rgba(59, 130, 246, 0.3);
+        }
+
+        .banner-info {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .info-group .label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .info-group .value-main {
+            font-size: 48px;
+            font-weight: 950;
+            letter-spacing: -0.03em;
+            line-height: 1;
+        }
+
+        .info-group .value-sub {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        /* --- FLOATING WHITE CARD EARNED (MATCHING SS 2) --- */
+        .white-total-card {
+            background: #fff;
+            color: #0f172a;
+            padding: 40px 50px;
+            border-radius: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .total-due-label {
+            font-size: 11px;
+            font-weight: 800;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .total-due-value {
+            font-size: 42px;
+            font-weight: 950;
+            letter-spacing: -0.03em;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .due-date-note {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        /* --- BILLING INFO SHADED BOX (MATCHING SS 2) --- */
+        .billing-container {
+            background-color: #f8fafc;
+            border-radius: 30px;
+            padding: 40px 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 50px;
+        }
+
+        .billing-col .label {
+            font-size: 11px;
+            font-weight: 900;
+            color: #3b82f6;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .billing-col .details {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        .billing-col .details strong {
+            color: #0f172a;
+            display: block;
+            font-size: 15px;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+        
+
+
+    
+
+    
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Center Logo (Matching SS 2) -->
+        <div class="logo-header">
+            <div>{{logo}}</div>
+        </div>
+
+        <!-- Blue Banner (Matching SS 2) -->
+        <div class="blue-banner">
+            <div class="banner-info">
+                <div class="info-group">
+                    <span class="label">INVOICE NUMBER:</span>
+                    <span class="value-main">#{{estimateNumber}}</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">INVOICE DATE:</span>
+                    <span class="value-sub">{{estimateDate}}</span>
+                </div>
+            </div>
+
+            <!-- White Floating Total -->
+            <div class="white-total-card">
+                <span class="total-due-label">TOTAL DUE:</span>
+                <span class="total-due-value">${{amount}}</span>
+                <span class="due-date-note">Payable on receipt</span>
+            </div>
+        </div>
+
+        <!-- Billing Section (Matching SS 2) -->
+        <div class="billing-container">
+            <div class="billing-col">
+                <span class="label">BILL FROM:</span>
+                <div class="details">
+                    <strong>{{companyName}}</strong>
+                    {{fromAddress}}
+                </div>
+            </div>
+            <div class="billing-col">
+                <span class="label">BILL TO:</span>
+                <div class="details">
+                    <strong>{{shipTo}}</strong>
+                    {{billToAddress}}
+                </div>
+            </div>
+        </div>
+
+        <!-- Items Table Area -->
+        <div class="items-area">
+            <div>
+                {{itemsTable}}
+            </div>
+        </div>
+
+        <!-- Final Summary -->
+        <div class="footer-summary">
+            <div class="summary-list">
+                <div>
+                    <span>Subtotal:</span>
+                    <span>${{subtotal}}</span>
+                </div>
+                <div>
+                    <span>Discount:</span>
+                    <span>${{totalDiscount}}</span>
+                </div>
+                <div>
+                    <span>Tax:</span>
+                    <span>${{totalTax}}</span>
+                </div>
+                <div class="total-final">
+                    <span>Total Amount:</span>
+                    <span>${{totalAmount}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Signature -->
+        <div class="flex justify-between items-end mt-12 pt-8 border-t border-slate-50">
+            <div class="w-1/2 terms-box">
+                <h6>Terms &amp; Conditions:</h6>
+                <p>{{terms}}</p>
+            </div>
+            <div class="text-right">
+                <div class="h-16 flex items-end justify-end mb-2">{{signature}}</div>
+                <div class="w-48 h-px bg-slate-100 ml-auto mb-2"></div>
+                <p class="text-[9px] font-bold text-slate-300 uppercase tracking-widest">Authorized Signature</p>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

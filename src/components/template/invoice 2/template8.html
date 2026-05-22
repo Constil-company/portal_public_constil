@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .lux-card-container {
+            background: #f8fafc;
+            border-radius: 2rem;
+            padding: 40px;
+            display: flex;
+            gap: 24px;
+        }
+
+        .inner-white-card {
+            background: white;
+            border-radius: 1.5rem;
+            padding: 24px;
+            flex: 1;
+            min-height: 200px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .inner-blue-card {
+            background: #3b82f6;
+            border-radius: 1.5rem;
+            padding: 32px;
+            flex: 1;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3);
+        }
+
+        .item-row-white {
+            background: white;
+            border: 1px solid #f1f5f9;
+            border-radius: 1rem;
+            padding: 12px 0;
+            margin-bottom: 12px;
+        }
+
+        tr,
+        .grid {
+            page-break-inside: avoid !important;
+        }
+    </style>
+</head>
+
+<body class="text-slate-900 px-12 py-16">
+    <div id="invoice" class="max-w-[1000px] mx-auto min-h-screen flex flex-col">
+
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-5xl font-black tracking-tighter text-slate-900 mb-1 leading-none uppercase">{{logo}}
+                </h1>
+                <p class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">CONSTIL / 12345 6789 US0001
+                </p>
+            </div>
+            <div class="flex gap-16 px-8 py-2 border-l border-slate-100">
+                <div>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Invoice
+                        Number:</span>
+                    <span class="text-xl font-black text-slate-900 tracking-tight">#{{invoiceNumber}}</span>
+                </div>
+                <div>
+                    <span
+                        class="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-1">Issued:</span>
+                    <span class="text-xl font-black text-slate-900 tracking-tight">{{invoiceDate}}</span>
+                </div>
+            </div>
+            <div class="pt-2">
+                <div class="grid grid-cols-3 gap-1 scale-125">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-blue-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-blue-600"></div>
+                    <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Modular Strip -->
+        <div class="lux-card-container mb-20">
+            <div class="inner-white-card">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-6 h-6 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Bill To:</span>
+                </div>
+                <h3 class="text-lg font-black text-slate-900 mb-2 leading-tight">Client: {{shipTo}}</h3>
+                <div class="space-y-1 text-xs text-slate-400">
+                    <p>{{billTo}}</p>
+                    <p class="leading-relaxed">{{billToAddress}}</p>
+                </div>
+            </div>
+            <div class="inner-white-card">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-6 h-6 bg-blue-50 rounded-full flex items-center justify-center text-blue-500">
+                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Bill From:</span>
+                </div>
+                <h3 class="text-lg font-black text-slate-900 mb-2 leading-tight">Company: {{companyName}}</h3>
+                <div class="space-y-1 text-xs text-slate-400">
+                    <p>{{from}}</p>
+                    <p class="leading-relaxed">{{fromAddress}}</p>
+                </div>
+            </div>
+            <div class="inner-blue-card">
+                <span class="text-[10px] font-black text-blue-100 uppercase tracking-widest block mb-1">Payment
+                    Terms</span>
+                <h4 class="text-4xl font-black mb-1">Net 15</h4>
+                <p class="text-[10px] font-bold text-blue-100 opacity-80 uppercase tracking-tighter">Due by
+                    {{expirationDate}}</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="flex-grow">
+            <div
+                class="grid grid-cols-12 gap-4 px-8 py-4 mb-4 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                <div class="col-span-4">Item</div>
+                <div class="col-span-1 text-center">Qty</div>
+                <div class="col-span-2 text-center">Unit Price</div>
+                <div class="col-span-1 text-center">Discount</div>
+                <div class="col-span-1 text-center">Tax</div>
+                <div class="col-span-3 text-right">Total</div>
+            </div>
+            <div class="space-y-4">
+                {{itemsTable}}
+            </div>
+        </div>
+
+        <!-- Summary -->
+        <div class="mt-16 flex justify-end">
+            <div class="w-64 space-y-3">
+                <div class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span>Subtotal:</span>
+                    <span class="text-slate-900">${{subtotal}}</span>
+                </div>
+                <div
+                    class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">
+                    <span>Total Discount:</span>
+                    <span class="text-slate-900">-${{totalDiscount}}</span>
+                </div>
+                <div class="flex justify-between pt-3 text-[11px] font-black text-slate-400 uppercase tracking-widest">
+                    <span>Total:</span>
+                    <span class="text-slate-900 font-black text-lg font-black">${{totalAmount}}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mt-24 pt-12 border-t border-slate-50">
+            <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Terms & Conditions:</h4>
+            <p class="text-[11px] text-slate-400 leading-relaxed italic">{{terms}}</p>
+        </footer>
+    </div>
+</body>
+
+</html>

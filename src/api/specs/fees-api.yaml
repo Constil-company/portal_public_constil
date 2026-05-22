@@ -1,0 +1,197 @@
+openapi: 3.0.0
+info:
+  title: Fee API
+  description: API to manage additional fees for invoices, including discounts and taxes
+  version: 1.0.0
+
+paths:
+  /api/v1/fees:
+    get:
+      operationId: getAllFees
+      summary: Retrieve a list of fees
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: The starting index of the fees.
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: The number of fees to return.
+          schema:
+            type: integer
+            example: 10
+        - name: filter
+          in: query
+          required: false
+          description: Filter criteria for fees.
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          required: false
+          description: Field to order fees by.
+          schema:
+            type: string
+            enum:
+              - createdAt
+        - name: direction
+          in: query
+          required: false
+          description: Sorting direction.
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: type
+          in: query
+          required: false
+          description: Type of fee to filter by.
+          schema:
+            type: string
+            enum:
+              - DISCOUNT
+              - TAX
+      responses:
+        '200':
+          description: A paginated list of fees
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllFeesPaginatedResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createFee
+      summary: Create a new fee
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeeRequest'
+      responses:
+        '201':
+          description: Fee successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    GetAllFeesPaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeResponse'
+    
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+    
+    FeeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        name:
+          type: string
+          example: "VAT Tax"
+        rate:
+          type: number
+          format: float
+          example: 15.0
+        type:
+          type: string
+          enum:
+            - DISCOUNT
+            - TAX
+          example: "TAX"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-03-06T12:00:00Z"
+    
+    CreateFeeRequest:
+      type: object
+      required:
+        - name
+        - rate
+        - type
+      properties:
+        name:
+          type: string
+          maxLength: 100
+        rate:
+          type: number
+          format: float
+        type:
+          type: string
+          enum:
+            - DISCOUNT
+            - TAX
+    
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

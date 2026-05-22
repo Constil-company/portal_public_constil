@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Ícones Lucide para os símbolos de Check, User e Building -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f1f5f9; }
+        .text-invoice-blue { color: #2983FF; }
+        .bg-invoice-blue { background-color: #2983FF; }
+    </style>
+</head>
+<body class="p-4 md:p-12">
+
+    <!-- Container Principal (Folha A4 aproximada) -->
+    <div class="max-w-5xl mx-auto bg-white rounded-[3rem] shadow-2xl p-8 md:p-8 border border-gray-50">
+        
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row justify-between items-start mb-12">
+            <div class="flex flex-col md:flex-row items-start md:items-center gap-8">
+                <div>
+                    <h1 class="text-6xl font-extrabold text-slate-800 tracking-tight">{{logo}}</h1>
+                    <p class="text-slate-400 mt-2 font-medium">CONSTIL / {{estimateNumber}}</p>
+                </div>
+                <!-- Divisor Vertical -->
+                <div class="hidden md:block h-20 w-[2px] bg-slate-100"></div>
+                <div class="flex flex-col gap-3">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">Estimate number:</p>
+                        <p class="font-bold text-slate-700 text-lg">{{estimateNumber}}</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">Issued:</p>
+                        <p class="font-bold text-slate-700 text-lg">{{estimateDate}}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grid de Pontos Coloridos (Logo) -->
+            <div class="grid grid-cols-3 gap-2 mt-6 md:mt-2">
+                <div class="w-4 h-4 rounded-full bg-transparent"></div>
+                <div class="w-4 h-4 rounded-full bg-transparent"></div>
+                <div class="w-4 h-4 rounded-full bg-[#FF3B30]"></div>
+                
+                <div class="w-4 h-4 rounded-full bg-transparent"></div>
+                <div class="w-4 h-4 rounded-full bg-[#C65D8D]"></div>
+                <div class="w-4 h-4 rounded-full bg-[#E03E52]"></div>
+                
+                <div class="w-4 h-4 rounded-full bg-[#4285F4]"></div>
+                <div class="w-4 h-4 rounded-full bg-[#5E5CE6]"></div>
+                <div class="w-4 h-4 rounded-full bg-[#7D52B5]"></div>
+            </div>
+        </header>
+
+        <!-- SEÇÃO DE TRÊS COLUNAS (INFO CARDS) -->
+        <div class="bg-white border border-slate-100 rounded-[2.5rem] p-6 shadow-sm mb-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <!-- Bill To -->
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="bg-blue-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+                        <span class="text-[11px] font-bold text-slate-400 tracking-widest uppercase">Bill To:</span>
+                    </div>
+                    <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 flex-grow">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i data-lucide="user" class="w-4 h-4 text-blue-500"></i>
+                            <h3 class="font-bold text-slate-800">{{shipTo}}</h3>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-400 font-medium leading-relaxed">
+                            <p>{{billTo}}</p>
+                            <p>{{billToAddress}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bill From -->
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="bg-blue-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+                        <span class="text-[11px] font-bold text-slate-400 tracking-widest uppercase">Bill From:</span>
+                    </div>
+                    <div class="bg-slate-50/50 border border-slate-100 rounded-3xl p-6 flex-grow">
+                        <div class="flex items-center gap-3 mb-4">
+                            <i data-lucide="building-2" class="w-4 h-4 text-blue-500"></i>
+                            <h3 class="font-bold text-slate-800">Company: {{companyName}}</h3>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-400 font-medium leading-relaxed">
+                            <p>{{from}}</p>
+                            <p>{{fromAddress}}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Amount Due (O Card Azul) -->
+                <div class="flex flex-col">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="bg-blue-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-white"></i></div>
+                        <span class="text-[11px] font-bold text-slate-400 tracking-widest uppercase">PAYMENT TERMS</span>
+                    </div>
+                    <div class="bg-invoice-blue rounded-3xl p-8 flex-col justify-center text-white shadow-lg shadow-blue-200 h-full">
+                        <p class="text-xs font-bold opacity-80 mb-2 uppercase tracking-widest">PAYMENT TERMS</p>
+                        <h2 class="text-4xl font-extrabold mb-2 tracking-tight">Net </h2>
+                        <p class="text-sm font-bold opacity-90">Due by {{expirationDate}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TABELA DE ITENS -->
+      <div class="mb-10 overflow-x-auto">
+        <div class="min-w-[620px]">
+          <!-- Header -->
+          <div class="grid grid-cols-12 px-2 py-4 text-[11px] font-bold text-custom-gray">
+            <div class="col-span-4">ITEM</div>
+            <div class="col-span-1 text-center">QTY</div>
+            <div class="col-span-2 text-center">UNIT PRICE</div>
+            <div class="col-span-1 text-center">DISCOUNT</div>
+            <div class="col-span-1 text-center">TAX</div>
+            <div class="col-span-3 text-right">TOTAL</div>
+          </div>
+
+          <!-- IMPORTANT: SAME KEY -->
+          <div class="space-y-2">{{itemsTable}}</div>
+        </div>
+      </div>
+
+            <!-- TOTAL FINAL -->
+            <div class="mt-12 text-right px-6 space-y-2">
+                <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">SUBTOTAL: <span class="text-slate-800">${{subtotal}}</span></p>
+                <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">TOTAL DISCOUNT: <span class="text-slate-800">${{totalDiscount}}</span></p>
+                <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">TOTAL TAX: <span class="text-slate-800">${{totalTax}}</span></p>
+                <p class="text-[10px] font-bold text-slate-300 tracking-widest uppercase">TOTAL: <span class="text-slate-800">${{amount}}</span></p>
+            </div>
+
+        <!-- TERMOS -->
+        <div class="px-6">
+            <p class="font-bold text-slate-400 text-xs mb-2">Terms & Conditions:</p>
+            <p class="text-[11px] text-slate-300 leading-relaxed max-w-4xl">
+                Fees and payment terms are set in the agreement. Initial deposit required before work begins. Work may be paused for non-payment.
+            </p>
+        </div>
+
+    </div>
+
+    <script>
+        // Inicializa os ícones do Lucide
+        lucide.createIcons();
+    </script>
+</body>
+</html>

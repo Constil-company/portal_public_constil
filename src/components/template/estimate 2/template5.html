@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            background: #fff;
+            display: flex; /* Sidebar Split */
+            min-height: 1123px; /* A4 Height approx */
+        }
+
+        /* --- LEFT SIDEBAR (MATCHING SS) --- */
+        .sidebar {
+            width: 260px;
+            padding: 40px 30px;
+            border-right: 1px solid #f1f5f9;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .id-pill-top {
+            background-color: #eff6ff;
+            color: #3b82f6;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: 800;
+            display: inline-block;
+            margin-bottom: 25px;
+            width: fit-content;
+        }
+
+        .doc-title {
+            font-size: 42px;
+            font-weight: 950;
+            color: #0f172a;
+            letter-spacing: -0.05em;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .sidebar-section {
+            margin-bottom: 35px;
+        }
+
+        .blue-tag-small {
+            background-color: #3b82f6;
+            color: #fff;
+            padding: 3px 10px;
+            border-radius: 5px;
+            font-size: 8px;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+
+        .sidebar-name {
+            font-size: 16px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-text {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .details-heading {
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        /* --- RIGHT CONTENT AREA --- */
+        .content-area {
+            flex: 1;
+            padding: 40px;
+        }
+
+        .content-area h2 {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 40px;
+        }
+
+        /* --- ITEM CARDS (MATCHING SS) --- */
+
+        .item-info-left {
+            flex: 1;
+        }
+
+        .item-name-main {
+            font-size: 17px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .item-desc-main {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        /* Metadata inside card */
+        .item-meta-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 30px;
+        }
+
+        .meta-entry {
+            font-size: 11px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .meta-entry span {
+            color: #94a3b8;
+            margin-right: 5px;
+            text-transform: uppercase;
+            font-size: 9px;
+        }
+
+        /* Very Large Price on Right */
+        .item-price-right {
+            text-align: right;
+            min-width: 150px;
+        }
+
+        .price-label-tiny {
+            font-size: 8px;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .price-val-huge {
+            font-size: 30px;
+            font-weight: 950;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        /* --- TOTALS (BOTTOM RIGHT) --- */
+        .totals-wrap-btm {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 10px;
+            padding-right: 10px;
+        }
+
+        .total-item-sm {
+            display: flex;
+            justify-content: space-between;
+            width: 200px;
+            font-size: 10px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+        }
+
+        .total-item-sm span:last-child {
+            color: #0f172a;
+        }
+
+        .final-total-bold {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #3b82f6;
+        }
+        
+
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="id-pill-top">N°: {{estimateNumber}}</div>
+            <h1 class="doc-title">ESTIMATE</h1>
+
+            <div class="sidebar-section">
+                <span class="blue-tag-small">Bill from:</span>
+                <div class="sidebar-name">{{companyName}}</div>
+                <div class="sidebar-text">{{fromAddress}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="blue-tag-small">Bill to:</span>
+                <div class="sidebar-name">{{shipTo}}</div>
+                <div class="sidebar-text">{{billToAddress}}</div>
+            </div>
+
+            <div class="sidebar-section">
+                <span class="details-heading">Estimate details:</span>
+                <div class="sidebar-text">
+                    Estimate number: <strong>N°: {{estimateNumber}}</strong><br>
+                    Issued: <strong>{{estimateDate}}</strong><br>
+                    Due date: <strong>July 25, 2024</strong>
+                </div>
+            </div>
+
+            <div class="sidebar-section mt-auto">
+                <span class="details-heading">TERMS & CONDITIONS:</span>
+                <div class="sidebar-text italic" style="font-size: 9px;">
+                    {{terms}}
+                </div>
+            </div>
+
+            <div class="mt-10">
+                {{signature}}
+                <div class="font-black text-xl text-slate-900 mt-2">CONST<span class="text-blue-500">IL</span></div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="content-area">
+            <h2>Items/Services</h2>
+            
+            <div class="items-area">
+                <div>
+                    {{itemsTable}}
+                </div>
+            </div>
+
+            <!-- TOTALS -->
+            <section class="totals-wrap-btm">
+                <div class="total-item-sm">
+                    <span>SUBTOTAL:</span>
+                    <span>${{subtotal}}</span>
+                </div>
+                <div class="total-item-sm">
+                    <span>TOTAL DISCOUNT:</span>
+                    <span>${{totalDiscount}}</span>
+                </div>
+                <div class="total-item-sm">
+                    <span>TOTAL TAX:</span>
+                    <span>${{totalTax}}</span>
+                </div>
+                <div class="total-item-sm final-total-bold">
+                    <span>TOTAL:</span>
+                    <span>${{totalAmount}}</span>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

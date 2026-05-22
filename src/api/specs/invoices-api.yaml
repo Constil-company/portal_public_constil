@@ -1,0 +1,524 @@
+openapi: 3.0.3
+info:
+  title: Invoice API
+  version: 2.2.1
+  description: API for fetching invoices with authentication and pagination.
+paths:
+  /api/v1/invoices:
+    get:
+      summary: Fetch paginated invoices
+      description: Retrieve a list of invoices with optional filters, sorting, and
+        pagination. Requests require JWT and Refresh Tokens to be present in cookies.
+      operationId: getAllInvoices
+      tags:
+        - Invoice
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 0
+          description: The starting index of the invoices.
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+          description: The number of invoices to return.
+        - name: filter
+          in: query
+          required: false
+          schema:
+            type: string
+            example: serviceName:Web Development
+          description: Filter criteria for invoices.
+        - name: orderBy
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - createdAt
+              - views
+            example: createdAt
+          description: Field to order invoices by.
+        - name: direction
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+            example: DESC
+          description: Sorting direction.
+        - name: kind
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - F
+              - E
+            example: F
+          description: Invoice kind Final (F) or Estimation (E).
+        - name: settled
+          in: query
+          required: false
+          schema:
+            type: boolean
+            example: true
+          description: Filter by settlement status of the invoice.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - EXPIRED
+              - PAID
+              - UNPAID
+              - INACTIVE
+            example: ACTIVE
+          description: Filter invoices by their status.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetAllInvoicesPaginatedResponse"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    post:
+      summary: Generate an invoice and send its document
+      operationId: generateInvoice
+      tags:
+        - Invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateInvoiceRequest"
+      responses:
+        201:
+          description: Return PDF Invoice URL and external invoice url
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GeneratedInvoiceResponse"
+        400:
+          $ref: "#/components/responses/BadRequest"
+        403:
+          $ref: "#/components/responses/Forbidden"
+        404:
+          $ref: "#/components/responses/NotFound"
+        500:
+          $ref: "#/components/responses/InternalServerError"
+
+  /api/v1/invoices/{invoiceId}:
+    delete:
+      summary: Delete an invoice
+      description: Deletes a specific invoice by its unique identifier. Requires authentication.
+      operationId: deleteInvoice
+      tags:
+        - Invoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the invoice to delete.
+      responses:
+        "204":
+          description: Invoice deleted successfully. No content returned.
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/invoices/references/generate:
+    get:
+      summary: Generate an invoice reference
+      description: Returns a unique reference string to be used in invoice creation.
+      operationId: generateInvoiceReference
+      tags:
+        - Invoice
+      parameters:
+        - name: kind
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - F
+              - E
+            example: F
+      responses:
+        '200':
+          description: Successfully generated invoice reference
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "INV-20250311-XYZ123"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/invoices/document/{invoiceId}:
+    get:
+      summary: Download invoice as PDF
+      description: Retrieve a specific invoice in PDF format.
+      operationId: downloadInvoice
+      tags:
+        - Invoice
+      parameters:
+        - name: invoiceId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The unique identifier of the invoice.
+      responses:
+        "200":
+          description: Successfully retrieved PDF invoice
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/invoices/send-email:
+    post:
+      summary: Send invoice via email
+      description: Sends an existing invoice to the specified client's email address with an optional message.
+      operationId: sendInvoiceByEmail
+      tags:
+        - Invoice
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendInvoiceEmailRequest"
+      responses:
+        '200':
+          description: Invoice sent successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invoice sent successfully to client@example.com"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Invoice not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    CSRFHeaderAuth:
+      type: apiKey
+      in: header
+      name: X-CSRF-TOKEN
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  schemas:
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+    InvoiceResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        invoiceId:
+          type: string
+          example: INV-12345
+        serviceName:
+          type: string
+          example: Web Development
+        servicePrice:
+          type: number
+          format: float
+          example: 1500.50
+        clientView:
+          type: integer
+          example: 42
+        clientId:
+          type: string
+          format: uuid
+          example: 123e4567-e89b-12d3-a456-426614174000
+        clientEmail:
+          type: string
+          format: email
+          description: The client's email address to which invoice can be sent.
+          example: "john.doe@example.com"
+        createdAt:
+          type: string
+          format: date-time
+          example: 2025-02-01T12:34:56Z
+        kind:
+          type: string
+          enum:
+            - F
+            - E
+          example: F
+        settled:
+          type: boolean
+          example: true
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - CANCELED
+            - INACTIVE
+          example: ACTIVE
+        documentUrl:
+          type: string
+          format: uri
+          example: https://example.com/invoices/INV-12345.pdf
+    GeneratedInvoiceResponse:
+      type: object
+      properties:
+        documentUrl:
+          type: string
+          format: uri
+          example: https://example.com/invoices/INV-12345.pdf
+        publicUrl:
+          type: string
+          format: uri
+          example: https://external-service.com/invoices/INV-12345
+          
+    SendInvoiceEmailRequest:
+      type: object
+      required:
+        - clientId
+        - invoiceId
+        - message
+      properties:
+        clientId:
+          type: string
+          format: uuid
+          description: The unique identifier of the client.
+        invoiceId:
+          type: string
+          description: The unique identifier of the invoice to send.
+        message:
+          type: string
+          minLength: 10
+          maxLength: 1000
+          description: Optional message to include in the email.
+
+    GetAllInvoicesPaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: "#/components/schemas/Pagination"
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/InvoiceResponse"
+      example:
+        pagination:
+          totalItems: 100
+          pageSize: 10
+          currentPage: 1
+          totalPages: 10
+        data:
+          - invoiceId: INV-12345
+            serviceName: Web Development
+            servicePrice: 1500.50
+            clientView: 42
+            createdAt: 2025-02-01T12:34:56Z
+            kind: F
+            settled: true
+            status: ACTIVE
+          - invoiceId: INV-12346
+            serviceName: Mobile Development
+            servicePrice: 2000.00
+            clientView: 42
+            createdAt: 2025-02-01T12:34:56Z
+            kind: F
+            settled: false
+            status: ACTIVE
+    GenerateInvoiceRequest:
+      type: object
+      required: [invoiceNumber, clientId, products]
+      properties:
+        invoiceNumber:
+          type: string
+          maxLength: 100
+        invoiceDueDate:
+          type: string
+          format: date
+        clientId:
+          type: string
+          format: uuid
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProductRequest"
+        paymentTerms:
+          type: string
+          maxLength: 255
+        observations:
+          type: string
+          maxLength: 255
+        templateId:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum:
+            - F
+            - E
+        discount:
+          type: number
+          format: float
+          example: 0.5
+        tax:
+          type: number
+          format: float
+          example: 1
+
+    ProductRequest:
+      type: object
+      required: [productId, price, quantity]
+      properties:
+        productId:
+          type: string
+          format: uuid
+        price:
+          type: number
+          format: float
+        quantity:
+          type: integer
+        fees:
+          type: array
+          items:
+            type: string
+            format: uuid
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

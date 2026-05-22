@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+        }
+
+        .lux-header {
+            border-radius: 3rem;
+            background: #3b82f6;
+            position: relative;
+            margin: 30px;
+            padding: 60px;
+            overflow: hidden;
+        }
+
+        .total-due-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 30px 40px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        tr,
+        .grid {
+            page-break-inside: avoid !important;
+        }
+
+        .dot-pattern {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            opacity: 0.1;
+            background-image: radial-gradient(#fff 2px, transparent 2px);
+            background-size: 30px 30px;
+        }
+    </style>
+</head>
+
+<body class="text-slate-900">
+    <div id="invoice" class="max-w-[1000px] mx-auto flex flex-col min-h-screen pt-12">
+        <!-- Centered Logo -->
+        <div class="flex justify-center mb-12">
+            <div class="logo-text text-4xl font-black tracking-tighter text-slate-900">
+                {{logo}}
+            </div>
+        </div>
+
+        <!-- Luxury Header -->
+        <div class="lux-header text-white flex justify-between items-center">
+            <div class="dot-pattern"></div>
+            <div class="relative z-10">
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100 mb-1">Invoice Number:
+                        </p>
+                        <h1 class="text-4xl font-extrabold tracking-tight uppercase">#{{invoiceNumber}}</h1>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-blue-100 mb-1">Invoice Date:
+                        </p>
+                        <p class="text-lg font-bold">{{invoiceDate}}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="relative z-10">
+                <div class="total-due-card">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total Due</p>
+                    <p class="text-4xl font-black text-slate-900 mb-2">${{totalAmount}}</p>
+                    <p class="text-[11px] font-bold text-slate-400">Due by {{expirationDate}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bill Sections -->
+        <div class="px-[60px] py-8">
+            <div class="bg-slate-50 rounded-[2.5rem] p-12 grid grid-cols-2 gap-12 border border-slate-100">
+                <div>
+                    <h3 class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Bill From:</h3>
+                    <p class="text-lg font-black text-slate-900 mb-1 leading-tight">{{companyName}}</p>
+                    <p class="text-xs font-semibold text-slate-500 mb-4">{{from}}</p>
+                    <div class="text-[11px] text-slate-400 leading-relaxed">{{fromAddress}}</div>
+                </div>
+                <div>
+                    <h3 class="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-4">Bill To:</h3>
+                    <p class="text-lg font-black text-slate-900 mb-1 leading-tight">{{shipTo}}</p>
+                    <p class="text-xs font-semibold text-slate-500 mb-4">{{billTo}}</p>
+                    <div class="text-[11px] text-slate-400 leading-relaxed">{{billToAddress}}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Body Section -->
+        <div class="px-[60px] py-8 flex-grow">
+            <div
+                class="grid grid-cols-12 gap-4 px-6 py-4 mb-2 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                <div class="col-span-4">Item Description</div>
+                <div class="col-span-1 text-center">Qty</div>
+                <div class="col-span-2 text-center">Unit Price</div>
+                <div class="col-span-1 text-center">Disc.</div>
+                <div class="col-span-1 text-center">Tax</div>
+                <div class="col-span-3 text-right">Total</div>
+            </div>
+            <div class="space-y-1">
+                {{itemsTable}}
+            </div>
+
+            <!-- Summary & Terms -->
+            <div class="mt-20">
+                <div class="flex justify-end mb-16">
+                    <div class="w-64 space-y-3">
+                        <div
+                            class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span>Subtotal:</span>
+                            <span class="text-slate-900">${{subtotal}}</span>
+                        </div>
+                        <div
+                            class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span>Total Discount:</span>
+                            <span class="text-slate-900">-${{totalDiscount}}</span>
+                        </div>
+                        <div
+                            class="flex justify-between text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">
+                            <span>Total Tax:</span>
+                            <span class="text-slate-900">+${{totalTax}}</span>
+                        </div>
+                        <div
+                            class="flex justify-between pt-3 text-[11px] font-black text-slate-900 uppercase tracking-widest">
+                            <span>Total:</span>
+                            <span class="text-slate-900 font-black text-lg">${{totalAmount}}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="max-w-2xl bg-slate-50 border border-slate-100 rounded-3xl p-10">
+                    <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest mb-4">Terms & Conditions:
+                    </h4>
+                    <p class="text-[11px] text-slate-400 leading-relaxed italic">{{terms}}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="p-[60px] pt-0 mt-auto flex justify-between items-end border-t border-slate-50 mt-12 pt-8">
+            <div class="text-[10px] font-bold text-slate-300 space-y-1">
+                <p>www.constil.com</p>
+                <p>support@constil.com / +1 (415) 555-0198</p>
+            </div>
+            <div class="text-right">
+                <div class="h-10 mb-4 opacity-80">{{signature}}</div>
+                <div class="logo-text text-2xl font-black tracking-tighter text-slate-900">
+                    CONSTIL<span class="text-blue-500">IL</span>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>

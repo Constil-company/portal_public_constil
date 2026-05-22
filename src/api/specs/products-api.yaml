@@ -1,0 +1,338 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  description: API to retrieve and create product information
+  version: 2.0.0
+
+paths:
+  /api/v1/products:
+    get:
+      operationId: getAllProducts
+      summary: Retrieve a list of products
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: The starting index of the products.
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: The number of products to return.
+          schema:
+            type: integer
+            example: 10
+        - name: filter
+          in: query
+          required: false
+          description: Filter criteria for products.
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          required: false
+          description: Field to order products by.
+          schema:
+            type: string
+            enum:
+              - createdAt
+        - name: direction
+          in: query
+          required: false
+          description: Sorting direction.
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: status
+          in: query
+          required: false
+          description: Filter product by their status.
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+            example: ACTIVE
+      responses:
+        '200':
+          description: A paginated list of products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllProductsPaginatedResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createProduct
+      summary: Create a new product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/products/{id}:
+    put:
+      operationId: updateProductPartially
+      summary: Partially update a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the product to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductRequest'
+      responses:
+        '200':
+          description: Product successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+    delete:
+      operationId: deleteProduct
+      summary: Delete a product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the product to delete
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Product successfully deleted
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    GetAllProductsPaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductResponse'
+      example:
+        pagination:
+          totalItems: 100
+          pageSize: 10
+          currentPage: 1
+          totalPages: 10
+        data:
+          - id: "123e4567-e89b-12d3-a456-426614174000"
+            reference: "REF-001"
+            name: "Product A"
+            price: 99.99
+            observation: "Limited edition product"
+            expiresAt: "2025-12-31T23:59:59Z"
+            createdAt: "2024-03-06T12:00:00Z"
+            unit: "hr"
+            taxes: "12"
+          - id: "223e4567-e89b-12d3-a456-426614174001"
+            reference: "REF-002"
+            name: "Product B"
+            price: 49.99
+            observation: "Seasonal product"
+            expiresAt: "2026-06-30T23:59:59Z"
+            createdAt: "2024-03-06T12:30:00Z"
+            unit: "pc"
+            taxes: "12"
+          - id: "223e4567-e89b-12d3-a456-426614174001"
+            reference: "REF-002"
+            name: "Product B"
+            price: 49.99
+            observation: "Seasonal product"
+            expiresAt: "2026-06-30T23:59:59Z"
+            createdAt: "2024-03-06T12:30:00Z"
+            unit: "pc"
+            taxes: "14"
+
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        reference:
+          type: string
+          example: "REF-001"
+        name:
+          type: string
+          example: "Product A"
+        price:
+          type: number
+          format: float
+          example: 99.99
+        observation:
+          type: string
+          example: "Limited edition product"
+        expiresAt:
+          type: string
+          format: date-time
+          example: "2025-12-31T23:59:59Z"
+        createdAt:
+          type: string
+          format: date-time
+          example: "2024-03-06T12:00:00Z"
+        taxes:
+          type: number
+          format: float
+          example: 4.5
+        descount:
+          type: number
+          format: float
+          example: 4.5
+
+    CreateProductRequest:
+      type: object
+      required: [name, price]
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+        observation:
+          type: string
+          maxLength: 255
+        expiresAt:
+          type: string
+          format: date-time
+        taxes:
+          type: array
+          items:
+            type: string
+            format: uuid
+          example:
+            - "660e8400-e29b-41d4-a716-446655440111"
+            - "770e8400-e29b-41d4-a716-446655440222"
+        discounts:
+          type: array
+          items:
+            type: string
+            format: uuid
+          example:
+            - "880e8400-e29b-41d4-a716-446655440333"
+            - "990e8400-e29b-41d4-a716-446655440444"
+    UpdateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        price:
+          type: number
+          format: float
+        observation:
+          type: string
+          maxLength: 255
+        expiresAt:
+          type: string
+          format: date-time
+        taxes:
+          type: array
+          items:
+            type: string
+            format: uuid
+        discounts:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

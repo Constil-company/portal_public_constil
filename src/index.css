@@ -1,0 +1,69 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+@import "./styles/components.css";
+
+@theme {
+  --color-primary: var(--color-primary);
+  --color-primary-active: var(--color-primary-active);
+  --color-canvas-dark: var(--color-canvas-dark);
+  --color-canvas-light: var(--color-canvas-light);
+  --color-surface-card-dark: var(--color-surface-card-dark);
+  --color-surface-elevated-dark: var(--color-surface-elevated-dark);
+  --color-surface-soft-light: var(--color-surface-soft-light);
+  --color-hairline-on-light: var(--color-hairline-on-light);
+  --color-hairline-on-dark: var(--color-hairline-on-dark);
+  --color-body: var(--color-body);
+  --color-muted: var(--color-muted);
+  --color-on-dark: var(--color-on-dark);
+  --color-ink: var(--color-ink);
+  --color-trading-up: var(--color-trading-up);
+  --color-trading-down: var(--color-trading-down);
+
+  --font-sans: var(--font-display);
+  --font-mono: var(--font-number);
+
+  --radius-ds-md: var(--rounded-md);
+  --radius-ds-lg: var(--rounded-lg);
+  --radius-ds-xl: var(--rounded-xl);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-display);
+    background-color: #ffffff;
+  }
+
+  body {
+    @apply antialiased bg-white;
+    background-color: var(--color-canvas-light);
+    color: var(--color-body-on-light);
+  }
+
+  #root {
+    min-height: 100%;
+    background-color: #ffffff;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+}
+
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: var(--rounded-pill);
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}

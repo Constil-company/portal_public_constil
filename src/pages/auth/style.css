@@ -1,0 +1,19 @@
+.borderInput {
+  border: 1px solid var(--color-hairline-on-light);
+}
+
+.btn_auth {
+  background-color: var(--color-primary) !important;
+  border-radius: var(--rounded-md) !important;
+  font-weight: 600 !important;
+  font-size: var(--text-button) !important;
+  transition: background-color 0.15s ease;
+}
+
+.btn_auth:active:not(:disabled) {
+  background-color: var(--color-primary-active) !important;
+}
+
+.btn_auth:disabled {
+  background-color: var(--color-primary-disabled) !important;
+}

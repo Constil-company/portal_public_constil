@@ -1,0 +1,315 @@
+openapi: 3.0.0
+info:
+  title: Client API
+  description: API to retrieve and create client information
+  version: 1.0.1
+
+paths:
+  /api/v1/clients:
+    get:
+      operationId: getClients
+      summary: Retrieve a list of clients
+      tags:
+        - Clients
+      parameters:
+        - name: from
+          in: query
+          required: false
+          description: The starting index of the invoices.
+          schema:
+            type: integer
+            example: 0
+        - name: size
+          in: query
+          required: false
+          description: The number of invoices to return.
+          schema:
+            type: integer
+            example: 10
+        - name: filter
+          in: query
+          required: false
+          description: Filter criteria for invoices.
+          schema:
+            type: string
+        - name: orderBy
+          in: query
+          required: false
+          description: Field to order clients by.
+          schema:
+            type: string
+            enum:
+              - createdAt
+        - name: direction
+          in: query
+          required: false
+          description: Sorting direction.
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: status
+          in: query
+          required: false
+          description: Filter clients by their status.
+          schema:
+            type: string
+            enum:
+              - ACTIVE
+              - INACTIVE
+            example: ACTIVE
+      responses:
+        '200':
+          description: A paginated list of clients
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAllClientsPaginatedResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      operationId: createClient
+      summary: Create a new client
+      tags:
+        - Clients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClientRequest'
+      responses:
+        '201':
+          description: Client successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /api/v1/clients/{id}:
+    put:
+      operationId: updateClient
+      summary: Update an existing client
+      tags:
+        - Clients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the client to update
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClientRequest'
+      responses:
+        '200':
+          description: Client successfully updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClientResponse'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      operationId: deleteClient
+      summary: Delete a client by ID
+      tags:
+        - Clients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Unique identifier of the client to delete
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Client successfully deleted
+        '404':
+          description: Client not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    GetAllClientsPaginatedResponse:
+      type: object
+      properties:
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClientResponse'
+      example:
+        pagination:
+          totalItems: 100
+          pageSize: 10
+          currentPage: 1
+          totalPages: 10
+        data:
+          - id: "123e4567-e89b-12d3-a456-426614174000"
+            clientName: John
+            address: 123 Main St, Springfield
+            phone: +1-555-1234
+            email: john.doe@example.com
+    UpdateClientRequest:
+      type: object
+      properties:
+        clientName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 100
+        phone:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+          maxLength: 100
+        website:
+          type: string
+          format: uri
+          example: "https://example.com"
+        observation:
+          type: string
+          example: "Preferred contact time: afternoon"
+          maxLength: 255
+
+    Pagination:
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          example: 100
+        pageSize:
+          type: integer
+          example: 10
+        currentPage:
+          type: integer
+          example: 1
+        totalPages:
+          type: integer
+          example: 10
+
+    ClientResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        clientName:
+          type: string
+          example: John
+        address:
+          type: string
+          example: 123 Main St, Springfield
+        phone:
+          type: string
+          example: +1-555-1234
+        email:
+          type: string
+          format: email
+          example: john.doe@example.com
+        website:
+          type: string
+          format: uri
+          example: "https://example.com"
+        observation:
+          type: string
+          example: "Preferred contact time: afternoon"
+
+    CreateClientRequest:
+      type: object
+      required: [clientName, email]
+      properties:
+        clientName:
+          type: string
+          minLength: 1
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 100
+        phone:
+          type: string
+          maxLength: 100
+        address:
+          type: string
+          maxLength: 100
+        website:
+          type: string
+          format: uri
+          example: "https://example.com"
+        observation:
+          type: string
+          example: "Preferred contact time: afternoon"
+          maxLength: 255
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          example: Invalid parameter
+        code:
+          type: integer
+          example: 400

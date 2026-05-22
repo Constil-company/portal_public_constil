@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com/3.0.0"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff;
+            margin: 0;
+            padding: 0;
+            color: #1e293b;
+        }
+
+        .main-container {
+            width: 794px;
+            margin: 0 auto;
+            padding: 50px 40px;
+            background: #fff;
+        }
+
+        /* --- MINIMALIST HEADER --- */
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 50px;
+        }
+
+        .logo-text-area h1 {
+            font-size: 38px;
+            font-weight: 900;
+            color: #000;
+            margin-bottom: 5px;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-text-area p {
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .dotted-icon {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .dot { width: 8px; height: 8px; border-radius: 50%; background: #3b82f6; }
+        .dot.red { background: #ef4444; }
+        .dot.purple { background: #8b5cf6; }
+
+        /* --- MODULAR HERO SECTION (MATCHING SS) --- */
+        .hero-modular {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 20px;
+            background-color: #fafafa;
+            border: 1px solid #f1f1f1;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+
+        .hero-card-small {
+            background: #fff;
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #f5f5f5;
+        }
+
+        .hero-card-small h6 {
+            font-size: 9px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            letter-spacing: 0.1em;
+        }
+
+        .hero-card-small .client-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+        .hero-card-small p {
+            font-size: 11px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .center-meta {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .center-meta .val-lg {
+            font-size: 28px;
+            font-weight: 900;
+            color: #0f172a;
+            margin-bottom: 5px;
+        }
+
+        .right-meta-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .stack-item {
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #f5f5f5;
+        }
+
+        /* --- BILL FROM BAR (MATCHING SS) --- */
+        .bill-from-bar {
+            background-color: #fcfcfc;
+            border: 1px solid #f9f9f9;
+            padding: 25px 30px;
+            border-radius: 15px;
+            margin-bottom: 60px;
+        }
+
+        .bill-from-bar h6 {
+            font-size: 9px;
+            font-weight: 900;
+            color: #cbd5e1;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .bill-from-bar .details {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+
+
+    
+
+    
+    
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Minimal Header -->
+        <header class="header-main">
+            <div class="logo-text-area">
+                <h1>{{logo}}</h1>
+                <p>{{companyName}} / 12345 6789 US0001</p>
+            </div>
+            <!-- Dotted Icon Placeholder -->
+            <div class="dotted-icon">
+                <div class="dot"></div><div class="dot red"></div><div class="dot"></div>
+                <div class="dot purple"></div><div class="dot blue"></div><div class="dot"></div>
+                <div class="dot red"></div><div class="dot"></div><div class="dot purple"></div>
+            </div>
+        </header>
+
+        <!-- Modular Hero Section (Matching SS) -->
+        <section class="hero-modular">
+            <div class="hero-card-small">
+                <h6>BILL TO:</h6>
+                <div class="client-name">{{shipTo}}</div>
+                <p>{{billToAddress}}</p>
+            </div>
+            
+            <div class="center-meta">
+                <span class="lbl font-black text-[9px] text-slate-300 uppercase tracking-widest mb-2">PAYMENT TERMS</span>
+                <div class="val-lg">Net 15</div>
+                <span class="lbl font-bold text-[10px] text-slate-400">Due by check</span>
+            </div>
+
+            <div class="right-meta-stack">
+                <div class="stack-item">
+                    <span class="lbl font-black text-[9px] text-slate-300 uppercase tracking-widest mb-1 block">ESTIMATE NUMBER:</span>
+                    <span class="font-black text-sm">#{{estimateNumber}}</span>
+                </div>
+                <div class="stack-item">
+                    <span class="lbl font-black text-[9px] text-slate-300 uppercase tracking-widest mb-1 block">ISSUED:</span>
+                    <span class="font-black text-sm">{{estimateDate}}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bill From Bar (Matching SS) -->
+        <div class="bill-from-bar">
+            <h6>BILL FROM:</h6>
+            <div class="details">
+                <strong class="text-slate-900 text-sm mb-1">{{companyName}}</strong>
+                <span>{{fromAddress}}</span>
+            </div>
+        </div>
+
+        <!-- Items Area -->
+        <div class="items-area">
+            <div>
+                {{itemsTable}}
+            </div>
+        </div>
+
+        <!-- Minimalist Totals -->
+        <section class="totals-minimal">
+            <div>
+                <span>SUBTOTAL:</span>
+                <span>${{subtotal}}</span>
+            </div>
+            <div>
+                <span>TAX:</span>
+                <span>${{totalTax}}</span>
+            </div>
+            <div class="grand-bold">
+                <span>TOTAL:</span>
+                <span>${{totalAmount}}</span>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer-minimal">
+            <div class="footer-brand">
+                <p class="font-black text-slate-800 uppercase mb-2">WWW.CONSTIL.COM</p>
+                <p>support@constil.com / +1 (415) 555-0198</p>
+            </div>
+            <div class="text-right">
+                <div class="h-12 flex items-end justify-end mb-2">{{signature}}</div>
+                <!-- Mini Dotted Icon -->
+                <div class="flex gap-1 justify-end">
+                  <div class="dot scale-50"></div><div class="dot red scale-50"></div><div class="dot purple scale-50"></div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+
+</html>
