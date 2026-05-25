@@ -10,6 +10,7 @@ import { Checkbox, FormControlLabel, Typography } from '@mui/material';
 import TermConditionModal from "./termConditionModal";
 import PrivacyModal from "./privacyModal";
 import { userRegistrationWithEmail } from "../../services/auth-service";
+import { AUTH_INPUT_CLASS, AUTH_LABEL_CLASS } from "../../pages/auth/auth-layout";
 
 interface FormValues {
   phoneNumber: string;
@@ -23,7 +24,7 @@ interface FormValues {
 export const SingUpAccountStep: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  // @ts-ignore
+ 
   const { user } = useSelector((state) => state.auth);
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -112,7 +113,7 @@ export const SingUpAccountStep: React.FC = () => {
       <form onSubmit={handleSubmit} className="grid grid-cols-4 gap-4">
 
         <div className="input-group col-span-full">
-          <label htmlFor="phone" className="uppercase mb-2">
+          <label htmlFor="phone" className={AUTH_LABEL_CLASS}>
             PHONE NUMBER
           </label>
           <input
@@ -120,7 +121,7 @@ export const SingUpAccountStep: React.FC = () => {
             id="phone"
             name="phoneNumber"
             placeholder="Phone Number"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             value={values.phoneNumber}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -131,7 +132,7 @@ export const SingUpAccountStep: React.FC = () => {
         </div>
 
         <div className="input-group col-span-4">
-          <label htmlFor="address" className="uppercase mb-2">
+          <label htmlFor="address" className={AUTH_LABEL_CLASS}>
             ADDRESS
           </label>
           <input
@@ -139,7 +140,7 @@ export const SingUpAccountStep: React.FC = () => {
             id="address"
             name="address"
             placeholder="Address"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             value={values.address}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -151,7 +152,7 @@ export const SingUpAccountStep: React.FC = () => {
 
         {/* ZIP CODE */}
         <div className="input-group col-span-2">
-          <label htmlFor="zipCode" className="uppercase mb-2">
+          <label htmlFor="zipCode" className={AUTH_LABEL_CLASS}>
             ZIP CODE
           </label>
           <input
@@ -159,7 +160,7 @@ export const SingUpAccountStep: React.FC = () => {
             id="zipCode"
             name="zipCode"
             placeholder="Code"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             value={values.zipCode}
             onChange={handleChange}
             onBlur={handleBlur}
@@ -172,13 +173,13 @@ export const SingUpAccountStep: React.FC = () => {
         {/* COUNTRY */}
         {/* COUNTRY */}
         <div className="input-group col-span-2">
-          <label htmlFor="country" className="uppercase mb-2">
+          <label htmlFor="country" className={AUTH_LABEL_CLASS}>
             COUNTRY
           </label>
           <select
             id="country"
             name="country"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             // value should be isoCode (internal) if available
             value={countryCode}
             onChange={(e) => {
@@ -215,13 +216,13 @@ export const SingUpAccountStep: React.FC = () => {
 
         {/* STATE */}
         <div className="input-group col-span-2">
-          <label htmlFor="state" className="uppercase mb-2">
+          <label htmlFor="state" className={AUTH_LABEL_CLASS}>
             STATE
           </label>
           <select
             id="state"
             name="state"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             value={stateCode}
             onChange={(e) => {
               const selectedCode = e.target.value;
@@ -257,13 +258,13 @@ export const SingUpAccountStep: React.FC = () => {
 
         {/* CITY */}
         <div className="input-group col-span-2">
-          <label htmlFor="city" className="uppercase mb-2">
+          <label htmlFor="city" className={AUTH_LABEL_CLASS}>
             CITY
           </label>
           <select
             id="city"
             name="city"
-            className="w-full p-3 rounded border border-gray-300 focus:border-[#9ED0FF] focus:ring-2 focus:ring-[#9ED0FF] outline-none"
+            className={AUTH_INPUT_CLASS}
             value={values.city}
             onChange={(e) => setFieldValue("city", e.target.value)}
             disabled={!stateCode}

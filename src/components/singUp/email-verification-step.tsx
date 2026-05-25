@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { useSelector } from 'react-redux';
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
+import { AUTH_OTP_DIGIT_CLASS } from '../../pages/auth/auth-layout';
 
 export function EmailVerificationStep({ timeLeft, isResendDisabled, startTimer, setCurrentStep }: any) {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -78,7 +79,7 @@ export function EmailVerificationStep({ timeLeft, isResendDisabled, startTimer, 
               value={digit}
               onChange={(e) => handleChange(e, index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
-              className="w-10 h-10 text-center text-xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={AUTH_OTP_DIGIT_CLASS}
             />
           ))}
         </div>

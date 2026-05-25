@@ -36,7 +36,7 @@ import 'jspdf/dist/polyfills.es.js';
 import 'jspdf/dist/jspdf.es.min.js';
 import { useNavigate } from 'react-router-dom';
 
-import * as XLSX from 'xlsx';
+type XlsxLib = typeof import('xlsx-js-style');
 
 interface TableRowType {
   [key: string]: string | number;
@@ -79,8 +79,16 @@ const isEditableHeader = (header: string) => {
   );
 };
 
+const getTableHeaders = (table: TableData): string[] => {
+  if (Array.isArray(table.headers) && table.headers.length > 0) {
+    return table.headers;
+  }
+  const firstRow = table.rows?.[0];
+  return firstRow ? Object.keys(firstRow) : [];
+};
+
 const getTableSubtotal = (table: TableData) => {
-  const costKey = table.headers.find((h) =>
+  const costKey = getTableHeaders(table).find((h) =>
     ['total cost', 'total', 'amount'].includes(h.toLowerCase()),
   );
   if (!costKey) return 0;
@@ -132,6 +140,55 @@ const exportDescriptionPDF = (table: any) => {
 /** Excel sheet names cannot contain * ? : / \ [ ] */
 const sanitizeExcelSheetName = (name: string) =>
   name.substring(0, 31).replace(/[*?:/\\[\]]/g, '');
+
+const EXCEL_HEADER_FILL_RGB = '0088FF';
+const EXCEL_HEADER_FONT_RGB = 'FFFFFF';
+
+const createStyledHeaderCell = (value: string) => ({
+  v: value,
+  t: 's' as const,
+  s: {
+    fill: {
+      patternType: 'solid' as const,
+      fgColor: { rgb: EXCEL_HEADER_FILL_RGB },
+      bgColor: { rgb: EXCEL_HEADER_FILL_RGB },
+    },
+    font: {
+      bold: true,
+      color: { rgb: EXCEL_HEADER_FONT_RGB },
+    },
+    alignment: {
+      horizontal: 'center' as const,
+      vertical: 'center' as const,
+      wrapText: true,
+    },
+  },
+});
+
+const ensureCell = (ws: import('xlsx-js-style').WorkSheet, ref: string) => {
+  if (!ws[ref]) {
+    ws[ref] = { t: 'n', v: 0 };
+  }
+  return ws[ref];
+};
+
+const createWorksheetFromTable = (XLSX: XlsxLib, table: TableData) => {
+  const headers = getTableHeaders(table);
+  const headerRow = headers.map(createStyledHeaderCell);
+  const dataRows = (table.rows ?? []).map((row) =>
+    headers.map((h) => row[h] ?? '')
+  );
+  return XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);
+};
+
+const loadXlsxLib = async (): Promise<XlsxLib> => {
+  const mod = await import('xlsx-js-style');
+  const lib = (mod as { default?: XlsxLib }).default ?? mod;
+  if (!lib?.utils?.book_new) {
+    throw new Error('Excel library failed to load');
+  }
+  return lib;
+};
 
 const File = () => {
   const navigate = useNavigate();
@@ -382,23 +439,25 @@ const File = () => {
   );
 
   const exportPDF = () => {
+    try {
     const doc = new jsPDF('l', 'mm', 'a4');
     let currentY = 20;
 
     tables.forEach((table) => {
+      const headers = getTableHeaders(table);
       doc.setFontSize(14);
       doc.text(table.table_name, 14, currentY);
       currentY += 6;
 
       autoTable(doc, {
         startY: currentY,
-        head: [table.headers],
-        body: table.rows.map((row) => table.headers.map((h) => row[h] || '')),
+        head: [headers],
+        body: table.rows.map((row) => headers.map((h) => row[h] || '')),
         theme: 'grid',
         styles: { fontSize: 10 },
         headStyles: { 
-          fillColor: [68, 138, 255], // #448AFF
-          textColor: [255, 255, 255]  // White
+          fillColor: [0, 136, 255], // #0088FF
+          textColor: [255, 255, 255]
         },
       });
 
@@ -407,11 +466,22 @@ const File = () => {
     });
 
     doc.save('estimate.pdf');
+    } catch (err) {
+      console.error('PDF export failed:', err);
+      toast.error('PDF download failed');
+    }
   };
-  const exportExcel = (filterName?: string) => {
+  const exportExcel = async (filterName?: string) => {
     try {
-      const wb = XLSX.utils.book_new();
+      const XLSX = await loadXlsxLib();
+
       const tablesToExport = filterName ? tables.filter(t => t.table_name === filterName) : tables;
+      if (tablesToExport.length === 0) {
+        toast.error('No tables available to export');
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
       const tableMeta: Record<string, { sheetName: string, tcCol: string, lastRow: number }> = {};
 
       const getColLetter = (n: number) => {
@@ -437,7 +507,7 @@ const File = () => {
 
       // Create all worksheets first
       const worksheets = tablesToExport.map(table => {
-        const ws = XLSX.utils.json_to_sheet(table.rows);
+        const ws = createWorksheetFromTable(XLSX, table);
         const sheetName = sanitizeExcelSheetName(table.table_name);
         return { table, ws, sheetName };
       });
@@ -472,19 +542,24 @@ const File = () => {
           };
           [qCol, wCol, umCol, ulCol, qwCol, tmCol, tlCol, tcCol].forEach(cleanCell);
 
-          if (qwCol && qCol && wCol) ws[qwCol + R].f = `${qCol}${R}*(1+${wCol}${R}/100)`;
+          if (qwCol && qCol && wCol) {
+            ensureCell(ws, qwCol + R).f = `${qCol}${R}*(1+${wCol}${R}/100)`;
+          }
           if (tmCol && qwCol && umCol) {
-            ws[tmCol + R].f = `${qwCol}${R}*${umCol}${R}`;
-            ws[tmCol + R].z = '"$"#,##0.00';
+            const cell = ensureCell(ws, tmCol + R);
+            cell.f = `${qwCol}${R}*${umCol}${R}`;
+            cell.z = '"$"#,##0.00';
           }
           if (tlCol && qwCol && ulCol) {
-            ws[tlCol + R].f = `${qwCol}${R}*${ulCol}${R}`;
-            ws[tlCol + R].z = '"$"#,##0.00';
+            const cell = ensureCell(ws, tlCol + R);
+            cell.f = `${qwCol}${R}*${ulCol}${R}`;
+            cell.z = '"$"#,##0.00';
           }
           if (tcCol) {
-            if (tmCol && tlCol) ws[tcCol + R].f = `${tmCol}${R}+${tlCol}${R}`;
-            else if (qwCol && umCol && ulCol) ws[tcCol + R].f = `${qwCol}${R}*(${umCol}${R}+${ulCol}${R})`;
-            ws[tcCol + R].z = '"$"#,##0.00';
+            const cell = ensureCell(ws, tcCol + R);
+            if (tmCol && tlCol) cell.f = `${tmCol}${R}+${tlCol}${R}`;
+            else if (qwCol && umCol && ulCol) cell.f = `${qwCol}${R}*(${umCol}${R}+${ulCol}${R})`;
+            cell.z = '"$"#,##0.00';
           }
         }
 
@@ -526,22 +601,24 @@ const File = () => {
               return cleanD.includes(cleanN) || cleanN.includes(cleanD);
             });
 
+            const amountCell = ensureCell(ws, amountRef);
+
             if (matchedKey) {
               const meta = tableMeta[matchedKey];
-              ws[amountRef].f = `SUM('${meta.sheetName}'!${meta.tcCol}2:${meta.tcCol}${meta.lastRow})`;
+              amountCell.f = `SUM('${meta.sheetName}'!${meta.tcCol}2:${meta.tcCol}${meta.lastRow})`;
             } else if (descLower.includes('subtotal')) {
               subtotalRow = R;
-              ws[amountRef].f = `SUM(${tcCol}2:${tcCol}${R - 1})`;
+              amountCell.f = `SUM(${tcCol}2:${tcCol}${R - 1})`;
             } else if (descLower.includes('total') && !descLower.includes('subtotal')) {
-              if (subtotalRow) ws[amountRef].f = `SUM(${tcCol}${subtotalRow}:${tcCol}${R - 1})`;
+              if (subtotalRow) amountCell.f = `SUM(${tcCol}${subtotalRow}:${tcCol}${R - 1})`;
             } else if (desc.includes('%')) {
               const match = desc.match(/(\d+\.?\d*)%/);
               if (match && subtotalRow) {
                 const percent = parseFloat(match[1]) / 100;
-                ws[amountRef].f = `${tcCol}${subtotalRow}*${percent}`;
+                amountCell.f = `${tcCol}${subtotalRow}*${percent}`;
               }
             }
-            ws[amountRef].z = '"$"#,##0.00';
+            amountCell.z = '"$"#,##0.00';
           }
         }
       });
@@ -550,7 +627,8 @@ const File = () => {
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
       });
 
-      XLSX.writeFile(wb, `${filterName || 'Estimate'}-${Date.now()}.xlsx`);
+      const filename = `${filterName || 'Estimate'}-${Date.now()}.xlsx`;
+      XLSX.writeFile(wb, filename);
       toast.success('Excel exported successfully with live formulas');
     } catch (err) {
       console.error('Excel export failed:', err);
@@ -776,7 +854,7 @@ const File = () => {
                               {table.table_name}
                             </span>
                             <span className="text-xs text-gray-500 mt-0.5 block">
-                              {table.rows.length} rows · {table.headers.length} columns
+                              {table.rows.length} rows · {getTableHeaders(table).length} columns
                             </span>
                           </div>
                         </div>
