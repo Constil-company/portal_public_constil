@@ -160,10 +160,27 @@ const createStyledHeaderCell = (value: string) => ({
     alignment: {
       horizontal: 'center' as const,
       vertical: 'center' as const,
-      wrapText: true,
+      wrapText: false,
     },
   },
 });
+
+/** Column width in characters — sized to fit header + data without wrapping */
+const applyWorksheetColumnWidths = (
+  ws: import('xlsx-js-style').WorkSheet,
+  headers: string[],
+  rows: TableRowType[],
+) => {
+  ws['!cols'] = headers.map((header) => {
+    let maxLen = String(header).length;
+    for (const row of rows) {
+      const cellLen = String(row[header] ?? '').length;
+      if (cellLen > maxLen) maxLen = cellLen;
+    }
+    const wch = Math.min(Math.max(Math.ceil(maxLen * 1.2) + 4, 14), 60);
+    return { wch };
+  });
+};
 
 const ensureCell = (ws: import('xlsx-js-style').WorkSheet, ref: string) => {
   if (!ws[ref]) {
@@ -174,11 +191,14 @@ const ensureCell = (ws: import('xlsx-js-style').WorkSheet, ref: string) => {
 
 const createWorksheetFromTable = (XLSX: XlsxLib, table: TableData) => {
   const headers = getTableHeaders(table);
+  const rows = table.rows ?? [];
   const headerRow = headers.map(createStyledHeaderCell);
-  const dataRows = (table.rows ?? []).map((row) =>
+  const dataRows = rows.map((row) =>
     headers.map((h) => row[h] ?? '')
   );
-  return XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);
+  const ws = XLSX.utils.aoa_to_sheet([headerRow, ...dataRows]);
+  applyWorksheetColumnWidths(ws, headers, rows);
+  return ws;
 };
 
 const loadXlsxLib = async (): Promise<XlsxLib> => {
