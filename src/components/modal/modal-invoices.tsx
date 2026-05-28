@@ -4,10 +4,7 @@
 // @ts-nocheck
 import { S3UploadService } from "../data/s3-data";
 import React, { useMemo, useState } from 'react';
-import { Modal, Box, IconButton, Typography, Grid, CircularProgress } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CheckIcon from '@mui/icons-material/Check';
+import { FormTemplateSelectionModal } from './form-template-selection-modal';
 
 // IMAGES + HTML IMPORTS (your existing code)
 import logoImage from '../template/estimate 3/assets/CONSTIL.svg'
@@ -45,6 +42,7 @@ import { useDispatch } from 'react-redux';
 import { setSelectedTemplate } from '../../redux/templateSlice';
 import { AppDispatch } from '../../redux/store';
 import { replacePlaceholders } from '../template/template-document-utils';
+import { getApiList } from '../../utils/api-list';
 
 export { replacePlaceholders };
 
@@ -113,7 +111,7 @@ const SelectTemplate = ({ open, onClose, previewData, setModalOpen, onConfirmAct
           if (typeof d === 'object' && d.rate !== undefined) {
             dRate += (parseFloat(d.rate) || 0);
           } else {
-            const found = allDiscounts?.data?.find(x => String(x.id) === String(d));
+            const found = getApiList(allDiscounts).find(x => String(x.id) === String(d));
             console.log(`[Preview] Item ${idx} discount lookup for ${d}:`, found ? found.rate : "NOT FOUND");
             if (found) dRate += (parseFloat(found.rate) || 0);
           }
@@ -129,7 +127,7 @@ const SelectTemplate = ({ open, onClose, previewData, setModalOpen, onConfirmAct
           if (typeof t === 'object' && t.rate !== undefined) {
             tRate += (parseFloat(t.rate) || 0);
           } else {
-            const found = allTaxes?.data?.find(x => String(x.id) === String(t));
+            const found = getApiList(allTaxes).find(x => String(x.id) === String(t));
             if (found) tRate += (parseFloat(found.rate) || 0);
           }
         });
@@ -182,260 +180,39 @@ const SelectTemplate = ({ open, onClose, previewData, setModalOpen, onConfirmAct
   const pathCheck = window.location.pathname === '/invoices/new' ? 'Invoice' : 'Estimate';
 
   return (
-    <>
-      {/* ---------------------------- MAIN TEMPLATE LIST MODAL ---------------------------- */}
-      <Modal
-        open={open}
-        onClose={(event, reason) => {
-          if (reason === 'backdropClick') return;
+    <FormTemplateSelectionModal
+      open={open}
+      onClose={() => {
+        onClose();
+        setPreviewFullOpen(false);
+      }}
+      documentType={pathCheck}
+      templates={availableTemplates}
+      isLoading={isLoading}
+      selectedTemplateId={selectedTemplateOne}
+      onSelectTemplate={handleSelectTemplate}
+      loadingTemplateId={loadingTemplateId}
+      onViewTemplate={handleView}
+      downloadChecked={downloadChecked}
+      onDownloadCheckedChange={setDownloadChecked}
+      emailChecked={emailChecked}
+      onEmailCheckedChange={setEmailChecked}
+      onConfirm={() => {
+        if (onConfirmActions) {
+          onConfirmActions(selectedTemplateOne, downloadChecked, emailChecked);
+        } else {
+          dispatch(setSelectedTemplate(selectedTemplateOne));
           onClose();
-        }}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '95%',
-            maxWidth: 1300,
-            bgcolor: '#fff',
-            borderRadius: 3,
-            boxShadow: 24,
-            overflow: 'hidden',
-            maxHeight: '95vh',
-            display: 'flex',
-          }}>
-          {/* LEFT SIDE */}
-          <Box
-            sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
-            <Box
-              sx={{
-                background: '#0b0e3f',
-                p: 2,
-                borderRadius: 2,
-                mb: 3,
-                textAlign: 'center',
-                color: '#fff',
-                position: 'relative',
-              }}>
-              <Typography variant="h6">Select the {pathCheck} template</Typography>
-
-              <IconButton
-                onClick={() => {
-                  onClose();
-                  setPreviewFullOpen(false);
-                }}
-                sx={{ position: 'absolute', top: 10, right: 10, color: '#fff' }}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            {isLoading ? (
-              <Box display="flex" justifyContent="center" py={5}>
-                <CircularProgress />
-              </Box>
-            ) : (
-              <>
-                <Grid container spacing={3}>
-                  {availableTemplates.map((t) => (
-                    <Grid item xs={12} sm={6} md={6} lg={4} key={t.id}>
-                      <Box
-                        sx={{
-                          border: selectedTemplateOne === t.id ? '2px solid #22c55e' : '1px solid #ddd',
-                          borderRadius: 2,
-                          overflow: 'hidden',
-                          cursor: 'pointer',
-                          position: 'relative',
-                        }}>
-                        {selectedTemplateOne === t.id && (
-                          <Box
-                            sx={{
-                              position: 'absolute',
-                              top: 10,
-                              right: 10,
-                              background: '#22c55e',
-                              p: 0.8,
-                              borderRadius: '50%',
-                            }}>
-                            <CheckIcon sx={{ color: '#fff', fontSize: 16 }} />
-                          </Box>
-                        )}
-
-                        <img
-                          src={t.src}
-                          style={{
-                            width: '100%',
-                            height: '400px',
-                            // objectFit: "cover",
-                          }}
-                        />
-
-                        <Box sx={{ textAlign: 'center', py: 2, fontWeight: '600' }}>{t.alt}</Box>
-
-                        {/* VIEW BUTTON */}
-                        <Box textAlign="center" pb={2}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleView(t.id);
-                            }}
-                            style={{
-                              background: '#0b0e3f',
-                              color: 'white',
-                              padding: '8px 14px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              cursor: 'pointer',
-                            }}>
-                            {loadingTemplateId === t.id ? 'Loading...' : 'View'}
-                          </button>
-                        </Box>
-
-                        <Box textAlign="center" pb={2}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleSelectTemplate(t.id); // sirf local state
-                            }}
-                            style={{
-                              background: '#22c55e',
-                              color: 'white',
-                              padding: '8px 14px',
-                              borderRadius: '6px',
-                              border: 'none',
-                              cursor: 'pointer',
-                            }}>
-                            Select
-                          </button>
-                        </Box>
-                      </Box>
-                    </Grid>
-                  ))}
-                </Grid>
-                <Box
-                  sx={{
-                    borderTop: '1px solid #e5e7eb',
-                    pt: 2,
-                    mt: 2,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    background: '#fff',
-                  }}
-                >
-                  <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                    {selectedTemplateOne
-                      ? '1 template selected'
-                      : 'Please select a template'}
-                  </Typography>
-
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                    {selectedTemplateOne && (
-                      <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mr: 2 }}>
-                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={downloadChecked}
-                            onChange={(e) => setDownloadChecked(e.target.checked)}
-                            style={{ marginRight: '8px' }}
-                          />
-                          <Typography variant="body2">Download document</Typography>
-                        </label>
-                        <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                          <input
-                            type="checkbox"
-                            checked={emailChecked}
-                            onChange={(e) => setEmailChecked(e.target.checked)}
-                            style={{ marginRight: '8px' }}
-                          />
-                          <Typography variant="body2">Send by email</Typography>
-                        </label>
-                      </Box>
-                    )}
-
-                    <button
-                      onClick={onClose}
-                      style={{
-                        background: '#f3f4f6',
-                        color: '#111827',
-                        padding: '10px 18px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      disabled={!selectedTemplateOne || (!downloadChecked && !emailChecked)}
-                      onClick={() => {
-                        if (onConfirmActions) {
-                          onConfirmActions(selectedTemplateOne, downloadChecked, emailChecked);
-                        } else {
-                          dispatch(setSelectedTemplate(selectedTemplateOne));
-                          onClose();
-                        }
-                      }}
-                      style={{
-                        background: (selectedTemplateOne && (downloadChecked || emailChecked)) ? '#0b0e3f' : '#9ca3af',
-                        color: 'white',
-                        padding: '10px 24px',
-                        borderRadius: '8px',
-                        border: 'none',
-                        cursor: (selectedTemplateOne && (downloadChecked || emailChecked)) ? 'pointer' : 'not-allowed',
-                        fontWeight: 600,
-                      }}
-                    >
-                      Confirm Select
-                    </button>
-                  </Box>
-                </Box>
-
-              </>
-            )}
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal open={previewFullOpen} onClose={() => setPreviewFullOpen(false)}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '60%',
-            maxWidth: 1000,
-            bgcolor: '#fff',
-            borderRadius: 3,
-            p: 2,
-            boxShadow: 24,
-            overflowY: 'auto',
-            maxHeight: '95vh',
-          }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <IconButton
-              onClick={() => {
-                setModalOpen(true);
-              }}>
-              <ArrowBackIcon />
-            </IconButton>
-
-            <Typography variant="h6" sx={{ ml: 1 }}>
-              Preview Template
-            </Typography>
-          </Box>
-
-          <iframe
-            title="Invoice template preview"
-            srcDoc={fullPreviewHtml}
-            style={{ width: "100%", height: "75vh", border: "none", display: "block" }}
-          />
-        </Box>
-      </Modal>
-    </>
+        }
+      }}
+      previewOpen={previewFullOpen}
+      onPreviewClose={() => setPreviewFullOpen(false)}
+      onPreviewBack={() => {
+        setPreviewFullOpen(false);
+        setModalOpen(true);
+      }}
+      previewHtml={fullPreviewHtml}
+    />
   );
 };
 

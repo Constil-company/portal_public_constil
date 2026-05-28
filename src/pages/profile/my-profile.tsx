@@ -9,11 +9,9 @@ import { toast } from "react-toastify";
 import { useEffect, useRef, useState } from "react";
 import { SkeletonLoader } from "../../components/common/skeleton-loader";
 import { useGetUserProfileQuery, useUpdateUserProfileMutation } from "../../services/rtkapi/invoiceApi";
-import { useSelector } from "react-redux";
 import { useJsApiLoader } from "@react-google-maps/api";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { BASED_URL } from "../../redux/createAPI";
 import { S3UploadService } from "../../components/data/s3-data";
 
 
@@ -39,8 +37,6 @@ const libraries: ("places")[] = ["places"];
 export function MyProfile() {
   const { data, isLoading, refetch } = useGetUserProfileQuery();
   const [updateUserProfile, { isLoading: isUpdating }] = useUpdateUserProfileMutation();
-  const user = useSelector((state: any) => state.auth.user);
-console.log(user,"user")
   const [formData, setFormData] = useState<ProfileFormData>({
     name: "",
     last_name: "",
@@ -57,6 +53,7 @@ console.log(user,"user")
 
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [initialSnapshot, setInitialSnapshot] = useState("");
   const addressRef = useRef<HTMLInputElement>(null);
 
   const { isLoaded } = useJsApiLoader({
@@ -95,6 +92,19 @@ console.log(user,"user")
         zipCode: p.zip_code || "",
         picture: null,
       });
+      setInitialSnapshot(JSON.stringify({
+        name: p.first_name || p.full_name?.split(" ")[0] || "",
+        last_name: p.last_name || p.full_name?.split(" ").slice(1).join(" ") || "",
+        company_name: p.company_name || "",
+        email: p.email || "",
+        phone: p.phone || "",
+        address: p.address || "",
+        countryCode: countryObj?.isoCode || "",
+        stateCode: stateObj?.isoCode || "",
+        city: apiCity || "",
+        zipCode: p.zip_code || "",
+        picture: null,
+      }));
       if (p.avatar_url) {
         const profilePath = p.avatar_url;
         setImgSrc(S3UploadService.getPublicUrl(profilePath, 'document-logos'));
@@ -155,6 +165,12 @@ console.log(user,"user")
     return () => clearTimeout(timer);
   }, [isLoaded]);
 
+  const hasChanges =
+    JSON.stringify({
+      ...formData,
+      picture: formData.picture instanceof File ? formData.picture.name : null,
+    }) !== initialSnapshot;
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -173,6 +189,7 @@ console.log(user,"user")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!hasChanges) return;
     
     // We update the 'profiles' table using the Supabase REST API
     // Supabase REST prefers JSON, so we create a plain object
@@ -210,6 +227,7 @@ console.log(user,"user")
       }
 
       await updateUserProfile({ id: profileId, body }).unwrap();
+      setInitialSnapshot(JSON.stringify({ ...formData, picture: null }));
       refetch();
       toast.success("Profile updated successfully!");
     } catch (err: any) {
@@ -302,8 +320,10 @@ console.log(user,"user")
                   placeholder="Type your first name"
                   value={formData.name}
                   onChange={(e) => handleInputChange("name", e.target.value)}
+                autoComplete="given-name"
                   className="w-full h-[47px] px-4 rounded-lg bg-[#FCFCFC] border border-[#EAE8E8] focus:outline-none focus:ring-2 focus:ring-[#2386AF]"
                 />
+              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
               </div>
               <div>
                 <label className="block font-semibold uppercase mb-2 text-[#12153A]">
@@ -314,8 +334,10 @@ console.log(user,"user")
                   placeholder="Type your last name"
                   value={formData.last_name}
                   onChange={(e) => handleInputChange("last_name", e.target.value)}
+                autoComplete="family-name"
                   className="w-full h-[47px] px-4 rounded-lg bg-[#FCFCFC] border border-[#EAE8E8] focus:outline-none focus:ring-2 focus:ring-[#2386AF]"
                 />
+              {errors.last_name && <p className="text-xs text-red-500 mt-1">{errors.last_name}</p>}
               </div>
             </div>
 
@@ -342,8 +364,10 @@ console.log(user,"user")
                 placeholder="Type your company name"
                 value={formData.company_name}
                 onChange={(e) => handleInputChange("company_name", e.target.value)}
+                autoComplete="organization"
                 className="w-full h-[47px] px-4 rounded-lg bg-[#FCFCFC] border border-[#EAE8E8] focus:outline-none focus:ring-2 focus:ring-[#2386AF]"
               />
+              {errors.company_name && <p className="text-xs text-red-500 mt-1">{errors.company_name}</p>}
             </div>
 
             {/* Phone */}
@@ -406,6 +430,7 @@ console.log(user,"user")
               value={formData.address}
               onKeyDown={(e) => e.key === "Enter" && e.preventDefault()}
               onChange={(e) => handleInputChange("address", e.target.value)}
+              autoComplete="street-address"
               className="h-[47px] px-4 rounded-lg bg-[#FCFCFC] border border-[#EAE8E8]"
             />
 
@@ -467,6 +492,7 @@ console.log(user,"user")
               placeholder="Zip Code"
               value={formData.zipCode}
               onChange={(e) => handleInputChange("zipCode", e.target.value)}
+              autoComplete="postal-code"
               className="h-[47px] px-4 rounded-lg bg-[#FCFCFC] border border-[#EAE8E8]"
             />
           </div>
@@ -476,26 +502,31 @@ console.log(user,"user")
         <div className="flex flex-col sm:flex-row sm:justify-end gap-3 w-full">
           <button
             type="submit"
-            disabled={isUpdating}
-            className="bg-[#2386AF] text-white px-5 py-2 rounded-md hover:bg-[#1d6d8e] transition"
+            disabled={isUpdating || !hasChanges}
+            className="bg-[#2386AF] text-white px-5 py-2 rounded-md hover:bg-[#1d6d8e] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isUpdating ? "Updating..." : "Update Profile"}
+            {isUpdating ? "Updating..." : hasChanges ? "Update Profile" : "No Changes to Save"}
           </button>
           <button
             type="button"
             onClick={() => {
               if (data) {
+                const p = data.data || {};
+                const countryObj = Country.getAllCountries().find((c) => c.name.toLowerCase() === (p.country || "").toLowerCase());
+                const stateObj = countryObj
+                  ? State.getStatesOfCountry(countryObj.isoCode).find((s) => s.name.toLowerCase() === (p.state || "").toLowerCase())
+                  : null;
                 setFormData({
-                  name: data.first_name || "",
-                  email: data.email || "",
-                  last_name: data.last_name || "",
-                  company_name: data.company_name || "",
-                  phone: data.phone || "",
-                  address: data.address || "",
-                  countryCode: data.country || "",
-                  stateCode: data.state || "",
-                  city: data.city || "",
-                  zipCode: data.zip_code || "",
+                  name: p.first_name || "",
+                  email: p.email || "",
+                  last_name: p.last_name || "",
+                  company_name: p.company_name || "",
+                  phone: p.phone || "",
+                  address: p.address || "",
+                  countryCode: countryObj?.isoCode || "",
+                  stateCode: stateObj?.isoCode || "",
+                  city: p.city || "",
+                  zipCode: p.zip_code || "",
                   picture: null,
                 });
               }

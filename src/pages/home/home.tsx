@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { ClipboardList, FileText, Mail, Send, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import StatsCardMain from "./stats";
 import TrendLineChart from "./trend-line";
 import { 
@@ -19,6 +20,7 @@ interface AlertData {
 }
 
 export function Home() {
+  const navigate = useNavigate();
   const { data: invoicesData, isLoading: invoicesLoading } = useGetInvoicesQuery();
   const { data: estimatesData, isLoading: estimatesLoading } = useGetEstimatesQuery();
   const { data: aiEstimatesData, isLoading: aiEstimatesLoading } = useAllAiEstimateQuery();
@@ -218,9 +220,22 @@ export function Home() {
           </div>
         )}
 
-        <h1 className="text-2xl font-bold text-gray-900 mb-6">
-          Dashboard
-        </h1>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Overview of your invoices, estimates, and AI projects
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => navigate("/estimates/ai/steps")}
+            className="bg-[#448AFF] hover:bg-[#3d7ef7] text-white rounded-lg font-medium px-5 py-2 flex items-center justify-center gap-2 transition-colors shrink-0"
+          >
+            <Sparkles size={18} />
+            Create AI Estimate
+          </button>
+        </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mb-6 items-stretch [&>*]:min-w-0">
           {invoicesLoading || estimatesLoading || aiEstimatesLoading ? (

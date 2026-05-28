@@ -32,7 +32,10 @@ const invoiceApi = createAPI.injectEndpoints({
 
     // ✅ Discounts
     getDiscounts: build.query<any, void>({
-      query: () => `/discounts`,
+      query: () => `/discounts?select=*&order=created_at.desc`,
+      transformResponse: (response: unknown) => ({
+        data: Array.isArray(response) ? response : [],
+      }),
       providesTags: ['Discount'],
     }),
 
@@ -53,7 +56,10 @@ const invoiceApi = createAPI.injectEndpoints({
       query: () => `${import.meta.env.VITE_SUPABASE_FUNCTIONS_URL}/user-api/wallet`,
     }),
     getTaxes: build.query<any, void>({
-      query: () => `/taxes`,
+      query: () => `/taxes?select=*&order=created_at.desc`,
+      transformResponse: (response: unknown) => ({
+        data: Array.isArray(response) ? response : [],
+      }),
       providesTags: ['Tax'],
     }),
 

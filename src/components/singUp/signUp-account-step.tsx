@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import { useFormik } from "formik";
 import { Country, State, City } from "country-state-city";
 import { useSelector, useDispatch } from "react-redux";
+import { RootState } from "../../redux/store";
 import { toast } from "react-toastify";
 import { clearAuth } from "../../redux/authSlice";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +26,7 @@ export const SingUpAccountStep: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
  
-  const { user } = useSelector((state) => state.auth);
+  const { user } = useSelector((state: RootState) => state.auth);
   const [isLoading, setIsLoading] = useState(false);
   const [checked, setChecked] = useState(false);
   const [accept, setAccept] = React.useState(false);

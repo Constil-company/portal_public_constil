@@ -33,6 +33,7 @@ import { AppDispatch, RootState } from "../../redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { clearSelectedTemplate } from "../../redux/templateSlice";
 import SelectTemplateEstimate, { templates, replacePlaceholders } from "../modal/SelectedTemplateEstimate";
+import { getApiList, toFeeSelectOptions } from "../../utils/api-list";
 import axios from "axios";
 import { S3UploadService } from "../data/s3-data";
 import { generatePdfFromHtml } from '../template/template-pdf-utils';
@@ -301,8 +302,8 @@ const FormInvoiceEstimate = ({ onClose }: FormInvoiceEstimateProps) => {
       setItems(mapped);
 
       // Map labels
-      const taxData = taxesResponse?.data || (Array.isArray(taxesResponse) ? taxesResponse : []);
-      const discData = discountsResponse?.data || (Array.isArray(discountsResponse) ? discountsResponse : []);
+      const taxData = getApiList(taxesResponse);
+      const discData = getApiList(discountsResponse);
 
       setSelectedTaxOptions(mapped.map((it: any) => {
         if (!Array.isArray(it.tax)) return [];
@@ -334,30 +335,16 @@ const FormInvoiceEstimate = ({ onClose }: FormInvoiceEstimateProps) => {
   }, [result, clients, products, taxesResponse, discountsResponse, estimateId]);
 
   useEffect(() => {
-    if (discountsResponse?.data) {
-      setDiscountOptions(
-        discountsResponse.data.map((d: any) => ({
-          id: d.id,
-          value: d.id,
-          label: `${d.name} (${d.rate}%)`,
-          rate: d.rate,
-          name: d.name,
-        }))
-      );
+    const list = getApiList(discountsResponse);
+    if (list.length) {
+      setDiscountOptions(toFeeSelectOptions(list));
     }
   }, [discountsResponse]);
 
   useEffect(() => {
-    if (taxesResponse?.data) {
-      setTaxOptions(
-        taxesResponse.data.map((t: any) => ({
-          id: t.id,
-          value: t.id,
-          label: `${t.name} (${t.rate}%)`,
-          rate: t.rate,
-          name: t.name,
-        }))
-      );
+    const list = getApiList(taxesResponse);
+    if (list.length) {
+      setTaxOptions(toFeeSelectOptions(list));
     }
   }, [taxesResponse]);
 
@@ -370,7 +357,7 @@ const FormInvoiceEstimate = ({ onClose }: FormInvoiceEstimateProps) => {
     const mapped = items.map((it) => {
       // 👇 Explicitly cast discount array to string[] to fix TS warning
       const opts = ((it.discount || []) as string[])
-        .map((id: string) => discountOptions.find((d) => d.id === id))
+        .map((id: string) => discountOptions.find((d) => String(d.id) === String(id)))
         .filter(Boolean);
 
       return opts;
@@ -385,7 +372,7 @@ const FormInvoiceEstimate = ({ onClose }: FormInvoiceEstimateProps) => {
 
     const mapped = items.map((it) => {
       const opts = ((it.tax || []) as string[]).map((id: string) =>
-        taxOptions.find((t) => t.id === id)
+        taxOptions.find((t) => String(t.id) === String(id))
       ).filter(Boolean);
       return opts;
     });
@@ -981,9 +968,8 @@ const FormInvoiceEstimate = ({ onClose }: FormInvoiceEstimateProps) => {
             };
 
             // ── PDF generation (mirrors the proven invoice-template-modal approach) ───
-            let htmlToProcess = templateObj.html;
             console.log("[PDF] Transformed data:", JSON.stringify(transformed, null, 2));
-            let finalHTML = replacePlaceholders(htmlToProcess, transformed as any);
+            const finalHTML = replacePlaceholders(templateObj.html, transformed as any);
             console.log("[PDF] finalHTML length:", finalHTML.length);
 
             const { pdf, blob: pdfBlob, cleanup } = await generatePdfFromHtml(finalHTML);

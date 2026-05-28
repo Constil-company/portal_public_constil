@@ -75,13 +75,20 @@ const TermsAndConditions = () => {
         without prior notice.
       </p>
 
-      <h2 className="mt-6 font-bold">10. Changes to Terms</h2>
+      <h2 className="mt-6 font-bold">10. User Responsibility</h2>
+      <p>
+        It is the user&apos;s responsibility to review the blueprints before submission so
+        that our AI can correctly extract the data, ensuring the quality and accuracy of
+        the information and contributing to the best possible results.
+      </p>
+
+      <h2 className="mt-6 font-bold">11. Changes to Terms</h2>
       <p>
         We may update these Terms at any time. Continued use of the platform after changes
         constitutes acceptance of the revised Terms.
       </p>
 
-      <h2 className="mt-6 font-bold">11. Contact</h2>
+      <h2 className="mt-6 font-bold">12. Contact</h2>
       <p>
         If you have any questions regarding these Terms, please contact us:
       </p>

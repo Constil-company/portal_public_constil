@@ -15,6 +15,7 @@ import { TemplatePreviewToolbar } from "./template-preview-toolbar";
 import { toast } from "react-toastify";
 import { InvoiceData } from "../../types/invoice";
 import { S3UploadService } from "../data/s3-data";
+import { getApiList } from "../../utils/api-list";
 
 import logoImage from '../template/invoice 3/assets/CONSTIL.svg'
 import logoWhite from '../template/invoice 3/assets/CONSTILWHite.svg'
@@ -96,7 +97,7 @@ const InvoiceTemplateModal: React.FC<InvoiceTemplateModalProps> = ({
           let resolvedTax = 0;
           if (Array.isArray(it.tax)) {
             resolvedTax = it.tax.reduce((sum: number, id: string) => {
-              const taxObj = (globalTaxes?.data || globalTaxes || []).find((t: any) => t.id === id);
+              const taxObj = getApiList(globalTaxes).find((t: any) => String(t.id) === String(id));
               return sum + (taxObj?.rate || 0);
             }, 0);
           } else {
@@ -107,7 +108,7 @@ const InvoiceTemplateModal: React.FC<InvoiceTemplateModalProps> = ({
           let resolvedDiscount = 0;
           if (Array.isArray(it.discount)) {
             resolvedDiscount = it.discount.reduce((sum: number, id: string) => {
-              const discObj = (globalDiscounts?.data || globalDiscounts || []).find((d: any) => d.id === id);
+              const discObj = getApiList(globalDiscounts).find((d: any) => String(d.id) === String(id));
               return sum + (discObj?.rate || 0);
             }, 0);
           } else {

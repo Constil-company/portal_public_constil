@@ -2,6 +2,7 @@
 // @ts-nocheck
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { getApiList, toFeeSelectOptions } from "../../utils/api-list";
 import {
   useCreateDiscountMutation,
   useGetClientsQuery,
@@ -238,7 +239,7 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
       const mappedSelectedTaxOptions = mapped.map((it: any) => {
         if (!it.tax || !Array.isArray(it.tax) || it.tax.length === 0) return [];
         return it.tax.map((tId: any) => {
-          const found = taxesResponse?.data?.find((t: any) => String(t.id) === String(tId));
+          const found = getApiList(taxesResponse).find((t: any) => String(t.id) === String(tId));
           if (found) return { id: found.id, value: found.id, label: `${found.name} (${found.rate}%)`, rate: found.rate, name: found.name };
           return { id: tId, value: tId, label: String(tId), rate: 0, name: String(tId) };
         });
@@ -247,7 +248,7 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
       const mappedSelectedDiscountOptions = mapped.map((it: any) => {
         if (!it.discount || !Array.isArray(it.discount) || it.discount.length === 0) return [];
         return it.discount.map((dId: any) => {
-          const found = discountsResponse?.data?.find((d: any) => String(d.id) === String(dId));
+          const found = getApiList(discountsResponse).find((d: any) => String(d.id) === String(dId));
           if (found) return { id: found.id, value: found.id, label: `${found.name} (${found.rate}%)`, rate: found.rate, name: found.name };
           return { id: dId, value: dId, label: String(dId), rate: 0, name: String(dId) };
         });
@@ -662,31 +663,17 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
 
   // Initialize discount options
   useEffect(() => {
-    if (discountsResponse?.data) {
-      setDiscountOptions(
-        discountsResponse.data.map((d: any) => ({
-          id: d.id,
-          value: d.id,
-          label: `${d.name} (${d.rate}%)`,
-          rate: d.rate,
-          name: d.name,
-        }))
-      );
+    const list = getApiList(discountsResponse);
+    if (list.length) {
+      setDiscountOptions(toFeeSelectOptions(list));
     }
   }, [discountsResponse]);
 
   // Initialize tax options
   useEffect(() => {
-    if (taxesResponse?.data) {
-      setTaxOptions(
-        taxesResponse.data.map((t: any) => ({
-          id: t.id,
-          value: t.id,
-          label: `${t.name} (${t.rate}%)`,
-          rate: t.rate,
-          name: t.name,
-        }))
-      );
+    const list = getApiList(taxesResponse);
+    if (list.length) {
+      setTaxOptions(toFeeSelectOptions(list));
     }
   }, [taxesResponse]);
 

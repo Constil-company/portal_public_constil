@@ -36,9 +36,11 @@ const Company = () => {
     if (data?.data) {
       const c = data.data.company_info || {};
       const u = data.data.user_info || {};
+      const fullName = (u.full_name || '').trim();
+      const [firstFromFullName, ...restFromFullName] = fullName.split(' ').filter(Boolean);
       setForm({
-        first_name: u.first_name || '',
-        last_name: u.last_name || '',
+        first_name: u.first_name || firstFromFullName || '',
+        last_name: u.last_name || restFromFullName.join(' ') || '',
         company_legal_name: c.company_legal_name || '',
         address: c.address || '',
         company_email: c.company_email || '',

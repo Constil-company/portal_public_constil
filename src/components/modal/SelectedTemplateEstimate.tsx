@@ -2,22 +2,17 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck
-import React, { useMemo, useState } from 'react';
-import { Modal, Box, IconButton, Typography, Grid, CircularProgress } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import CheckIcon from '@mui/icons-material/Check';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useMemo, useState } from "react";
+import { FormTemplateSelectionModal } from './form-template-selection-modal';
+import { useGetPackageBuyQuery } from "../../services/rtkapi/invoiceApi";
+import { useDispatch } from 'react-redux';
 import { setSelectedTemplate } from '../../redux/templateSlice';
 import { AppDispatch } from '../../redux/store';
 import { S3UploadService } from "../../components/data/s3-data";
 import { 
   useGetClientsQuery, 
   useGetUserProfileQuery, 
-  useGetProductsQuery, 
-  useGetTaxesQuery, 
-  useGetDiscountsQuery,
-  useGetActiveTemplatesQuery
+  useGetProductsQuery,
 } from "../../services/rtkapi/invoiceApi";
 
 // Assets
@@ -73,8 +68,17 @@ const SelectTemplateEstimate: React.FC<any> = ({ open, onClose, previewData, set
   const { data: getCurrentUserRes } = useGetUserProfileQuery();
   const user = getCurrentUserRes?.data || getCurrentUserRes;
   const { data: allProductsRes } = useGetProductsQuery();
-  const { data: allTaxesRes } = useGetTaxesQuery();
-  const { data: allDiscountsRes } = useGetDiscountsQuery();
+  const { data: packageData, isLoading: isPackageLoading } = useGetPackageBuyQuery();
+
+  const availableTemplates = useMemo(() => {
+    const wallet = packageData?.wallet;
+    if (!wallet) return templates;
+
+    if (wallet.enterprise_templates || wallet.professional_templates) return templates;
+    if (wallet.basic_templates) return templates.slice(0, 3);
+
+    return templates;
+  }, [packageData]);
 
   const handleView = async (id: number) => {
     setLoadingTemplateId(id);
@@ -123,106 +127,39 @@ const SelectTemplateEstimate: React.FC<any> = ({ open, onClose, previewData, set
   };
 
   return (
-    <>
-      <Modal open={open} onClose={(e, r) => r !== 'backdropClick' && onClose()}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '95%', maxWidth: 1300, bgcolor: '#fff', borderRadius: 3, boxShadow: 24,
-          overflow: 'hidden', maxHeight: '95vh', display: 'flex'
-        }}>
-          <Box sx={{ flex: 1, p: 3, overflowY: 'auto' }}>
-            <Box sx={{
-              background: '#0b0e3f', p: 2, borderRadius: 2, mb: 3, textAlign: 'center', color: '#fff', position: 'relative'
-            }}>
-              <Typography variant="h6">Select the Estimate template</Typography>
-              <IconButton onClick={onClose} sx={{ position: 'absolute', top: 10, right: 10, color: '#fff' }}>
-                <CloseIcon />
-              </IconButton>
-            </Box>
-
-            <Grid container spacing={3}>
-              {templates.map((t) => (
-                <Grid item xs={12} sm={6} md={6} lg={4} key={t.id}>
-                  <Box sx={{
-                    border: selectedTemplateOne === t.id ? '2px solid #22c55e' : '1px solid #ddd',
-                    borderRadius: 2, overflow: 'hidden', cursor: 'pointer', position: 'relative'
-                  }} onClick={() => handleSelectTemplate(t.id)}>
-                    {selectedTemplateOne === t.id && (
-                      <Box sx={{ position: 'absolute', top: 10, right: 10, background: '#22c55e', p: 0.8, borderRadius: '50%' }}>
-                        <CheckIcon sx={{ color: '#fff', fontSize: 16 }} />
-                      </Box>
-                    )}
-                    <img src={t.src} style={{ width: '100%', height: '400px', objectFit: 'contain' }} />
-                    <Box sx={{ textAlign: 'center', py: 2, fontWeight: '600' }}>{t.alt}</Box>
-                    <Box textAlign="center" pb={2} display="flex" justifyContent="center" gap={1}>
-                      <button onClick={(e) => { e.stopPropagation(); handleView(t.id); }}
-                        style={{ background: '#0b0e3f', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}>
-                        {loadingTemplateId === t.id ? 'Loading...' : 'View'}
-                      </button>
-                      <button onClick={(e) => { e.stopPropagation(); handleSelectTemplate(t.id); }}
-                        style={{ background: '#22c55e', color: 'white', padding: '8px 14px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}>
-                        Select
-                      </button>
-                    </Box>
-                  </Box>
-                </Grid>
-              ))}
-            </Grid>
-
-            <Box sx={{ borderTop: '1px solid #e5e7eb', pt: 2, mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Typography variant="body2" sx={{ color: '#6b7280' }}>
-                {selectedTemplateOne ? '1 template selected' : 'Please select a template'}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                {selectedTemplateOne && (
-                  <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mr: 2 }}>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={downloadChecked} onChange={(e) => setDownloadChecked(e.target.checked)} style={{ marginRight: '8px' }} />
-                      <Typography variant="body2">Download document</Typography>
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-                      <input type="checkbox" checked={emailChecked} onChange={(e) => setEmailChecked(e.target.checked)} style={{ marginRight: '8px' }} />
-                      <Typography variant="body2">Send by email</Typography>
-                    </label>
-                  </Box>
-                )}
-                <button onClick={onClose} style={{ background: '#f3f4f6', color: '#111827', padding: '10px 18px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600 }}>
-                  Cancel
-                </button>
-                <button disabled={!selectedTemplateOne || (!downloadChecked && !emailChecked)}
-                  onClick={() => {
-                    if (onConfirmActions) onConfirmActions(selectedTemplateOne, downloadChecked, emailChecked);
-                    else { dispatch(setSelectedTemplate(selectedTemplateOne)); onClose(); }
-                  }}
-                  style={{
-                    background: (selectedTemplateOne && (downloadChecked || emailChecked)) ? '#0b0e3f' : '#9ca3af',
-                    color: 'white', padding: '10px 24px', borderRadius: '8px', border: 'none',
-                    cursor: (selectedTemplateOne && (downloadChecked || emailChecked)) ? 'pointer' : 'not-allowed', fontWeight: 600
-                  }}>
-                  Confirm Select
-                </button>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-      </Modal>
-
-      <Modal open={previewFullOpen} onClose={() => setPreviewFullOpen(false)}>
-        <Box sx={{
-          position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-          width: '70%', maxWidth: 1000, bgcolor: '#fff', borderRadius: 3, p: 3, boxShadow: 24,
-          overflowY: 'auto', maxHeight: '95vh'
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            <IconButton onClick={() => { setPreviewFullOpen(false); setModalOpen(true); }}>
-              <ArrowBackIcon />
-            </IconButton>
-            <Typography variant="h6" sx={{ ml: 1 }}>Preview Template</Typography>
-          </Box>
-          <iframe title="Template Preview" srcDoc={fullPreviewHtml} style={{ width: '100%', height: '75vh', border: 'none' }} />
-        </Box>
-      </Modal>
-    </>
+    <FormTemplateSelectionModal
+      open={open}
+      onClose={() => {
+        onClose();
+        setPreviewFullOpen(false);
+      }}
+      documentType="Estimate"
+      templates={availableTemplates}
+      isLoading={isPackageLoading}
+      selectedTemplateId={selectedTemplateOne}
+      onSelectTemplate={handleSelectTemplate}
+      loadingTemplateId={loadingTemplateId}
+      onViewTemplate={handleView}
+      downloadChecked={downloadChecked}
+      onDownloadCheckedChange={setDownloadChecked}
+      emailChecked={emailChecked}
+      onEmailCheckedChange={setEmailChecked}
+      onConfirm={() => {
+        if (onConfirmActions) {
+          onConfirmActions(selectedTemplateOne, downloadChecked, emailChecked);
+        } else {
+          dispatch(setSelectedTemplate(selectedTemplateOne));
+          onClose();
+        }
+      }}
+      previewOpen={previewFullOpen}
+      onPreviewClose={() => setPreviewFullOpen(false)}
+      onPreviewBack={() => {
+        setPreviewFullOpen(false);
+        setModalOpen(true);
+      }}
+      previewHtml={fullPreviewHtml}
+    />
   );
 };
 
