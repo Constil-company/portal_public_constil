@@ -459,6 +459,7 @@ export const replacePlaceholders = (template: string, data: any): string => {
 
   const fromName =
     data?.from?.register?.name ||
+    data?.from?.company?.company_legal_name ||
     data?.from?.company_name ||
     data?.from?.first_name ||
     data?.from?.name ||
@@ -469,9 +470,22 @@ export const replacePlaceholders = (template: string, data: any): string => {
     data?.from?.company?.company_legal_name ||
     fromName ||
     "";
-  const fromEmail = (data?.from?.register?.email || data?.from?.email || "").toLowerCase();
-  const fromPhone = data?.from?.register?.phone || data?.from?.phone || "";
-  const fromAddressRaw = data?.from?.register?.address || data?.from?.address || "";
+  const fromEmail = (
+    data?.from?.company?.company_email ||
+    data?.from?.register?.email ||
+    data?.from?.email ||
+    ""
+  ).toLowerCase();
+  const fromPhone =
+    data?.from?.company?.company_phone ||
+    data?.from?.register?.phone ||
+    data?.from?.phone ||
+    "";
+  const fromAddressRaw =
+    data?.from?.company?.address ||
+    data?.from?.register?.address ||
+    data?.from?.address ||
+    "";
   const fromAddress = [fromAddressRaw, fromEmail, fromPhone].filter(Boolean).join(", ");
 
   const billToName = data?.billTo?.name || data?.billTo?.first_name || "";

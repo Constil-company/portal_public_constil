@@ -15,6 +15,7 @@ import {
   useUpdateInvoiceMutation,
   useSendInvoiceEmailMutation,
   useGetUserProfileQuery,
+  useGetCompanyQuery,
 } from "../../services/rtkapi/invoiceApi";
 import { useCreateInvoiceMutation } from "../../services/rtkapi/invoiceApi";
 import { useGetProductByIdQuery } from "../../services/rtkapi/productApi";
@@ -77,6 +78,7 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
   const [updateInvoice, { isLoading: isUpdating }] = useUpdateInvoiceMutation();
   const { refetch } = useGetInvoicesQuery();
   const { data: getCurrentUser } = useGetUserProfileQuery();
+  const { data: companyProfileResponse } = useGetCompanyQuery();
 
   /** ---------------- LOCAL STATE ---------------- */
   const [invoiceNumber, setInvoiceNumber] = useState("");
@@ -531,12 +533,8 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
 
       const transformed = {
         from: {
-          register: {
-            name: (getCurrentUser?.data || getCurrentUser)?.company_name || (getCurrentUser?.data || getCurrentUser)?.first_name || (getCurrentUser?.data || getCurrentUser)?.register?.name || (getCurrentUser?.data || getCurrentUser)?.name || (getCurrentUser?.data || getCurrentUser)?.businessName || "",
-            email: (getCurrentUser?.data || getCurrentUser)?.email || (getCurrentUser?.data || getCurrentUser)?.register?.email || "",
-            company_name: (getCurrentUser?.data || getCurrentUser)?.company?.company_legal_name || (getCurrentUser?.data || getCurrentUser)?.company_name || (getCurrentUser?.data || getCurrentUser)?.register?.company_name || (getCurrentUser?.data || getCurrentUser)?.businessName || "",
-            address: (getCurrentUser?.data || getCurrentUser)?.company?.address || (getCurrentUser?.data || getCurrentUser)?.address || (getCurrentUser?.data || getCurrentUser)?.register?.address || "",
-          }
+          register: fromRegisterData,
+          company: currentUserProfile?.company || {},
         },
         billTo: selectedClientObj || {},
         invoiceNumber,
@@ -989,6 +987,53 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
 
   const [userName, setUserName] = useState("")
   const user = useSelector((state: any) => state.auth.user);
+  const currentUserProfile = useMemo(
+    () => (getCurrentUser?.data || getCurrentUser || {}) as any,
+    [getCurrentUser]
+  );
+  const companyBusinessDetails = useMemo(
+    () => companyProfileResponse?.data?.company_info || {},
+    [companyProfileResponse]
+  );
+  const fromRegisterData = useMemo(() => {
+    const company = {
+      ...(currentUserProfile?.company || {}),
+      ...companyBusinessDetails,
+    };
+    const fullName = `${currentUserProfile?.first_name || ""} ${currentUserProfile?.last_name || ""}`.trim();
+
+    return {
+      name:
+        company?.company_legal_name ||
+        currentUserProfile?.company_name ||
+        fullName ||
+        currentUserProfile?.register?.name ||
+        currentUserProfile?.name ||
+        currentUserProfile?.businessName ||
+        "",
+      email:
+        company?.company_email ||
+        currentUserProfile?.email ||
+        currentUserProfile?.register?.email ||
+        "",
+      phone:
+        company?.company_phone ||
+        currentUserProfile?.phone ||
+        currentUserProfile?.register?.phone ||
+        "",
+      company_name:
+        company?.company_legal_name ||
+        currentUserProfile?.company_name ||
+        currentUserProfile?.register?.company_name ||
+        currentUserProfile?.businessName ||
+        "",
+      address:
+        company?.address ||
+        currentUserProfile?.address ||
+        currentUserProfile?.register?.address ||
+        "",
+    };
+  }, [currentUserProfile, companyBusinessDetails]);
 
   useEffect(() => {
     setUserName(localStorage.getItem("username") || "")
@@ -1035,7 +1080,12 @@ const FormInvoice = ({ onClose }: FormInvoiceProps) => {
                         </label>
                       </div>
                       <div className="p-2">
-                        <p className="text-gray-500 text-sm mb-2">{user?.first_name || userName || ""}</p>
+                        <p className="text-gray-700 text-sm font-semibold mb-1">
+                          {fromRegisterData.company_name || fromRegisterData.name || user?.first_name || userName || ""}
+                        </p>
+                        <p className="text-gray-500 text-sm mb-1">{fromRegisterData.email || "-"}</p>
+                        <p className="text-gray-500 text-sm mb-1">{fromRegisterData.phone || "-"}</p>
+                        <p className="text-gray-500 text-sm">{fromRegisterData.address || "-"}</p>
                       </div>
                     </div>
 

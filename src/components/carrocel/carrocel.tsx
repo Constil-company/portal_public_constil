@@ -32,6 +32,11 @@ export default function Carousel() {
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
+        slides.forEach((slide) => {
+            const img = new Image();
+            img.src = slide.image;
+        });
+
         const interval = setInterval(() => {
             setIndex((prevIndex) => (prevIndex + 1) % slides.length);
         }, 5000);
@@ -39,19 +44,23 @@ export default function Carousel() {
     }, []);
 
     return (
-        <motion.div
-            key={index}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7, ease: "easeInOut" }}
-            className="relative w-full h-full overflow-hidden rounded-md bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${slides[index].image})` }}
-        >
+        <div className="relative w-full h-full overflow-hidden rounded-md">
+            {slides.map((slide, i) => (
+                <motion.div
+                    key={slide.image}
+                    initial={false}
+                    animate={{ opacity: i === index ? 1 : 0 }}
+                    transition={{ duration: 1.1, ease: "easeInOut" }}
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+                    style={{ backgroundImage: `url(${slide.image})` }}
+                />
+            ))}
+
             <motion.div
-                initial={{ opacity: 0, y: 24 }}
+                key={`content-${index}`}
+                initial={{ opacity: 0.2, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, ease: "easeInOut", delay: 0.2 }}
+                transition={{ duration: 0.55, ease: "easeOut" }}
                 className="absolute inset-0 flex flex-col justify-end p-8 md:p-12"
             >
                 <div className="text-left w-full max-w-xl">
@@ -63,9 +72,9 @@ export default function Carousel() {
                     </p>
                 </div>
                 <motion.div
-                    initial={{ opacity: 0 }}
+                    initial={false}
                     animate={{ opacity: 1 }}
-                    transition={{ duration: 0.7, delay: 0.4 }}
+                    transition={{ duration: 0.3 }}
                     className="flex space-x-2 mt-8"
                 >
                     {slides.map((_, i) => (
@@ -80,6 +89,6 @@ export default function Carousel() {
                     ))}
                 </motion.div>
             </motion.div>
-        </motion.div>
+        </div>
     );
 }
